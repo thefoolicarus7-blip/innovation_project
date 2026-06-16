@@ -14,7 +14,11 @@ export const SplashScreen = ({ navigation }: any) => {
     if (!isLoading) {
       const timer = setTimeout(() => {
         if (user) {
-          navigation.replace('Main');
+          if (user.isVerified === 'false') {
+            navigation.replace('VerifyEmail', { email: user.email });
+          } else {
+            navigation.replace('Main');
+          }
         } else {
           navigation.replace('Login');
         }

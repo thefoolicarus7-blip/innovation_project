@@ -15,6 +15,8 @@ export interface UserDocument extends mongoose.Document {
   skills: string[];
   resetToken?: string;
   resetTokenExpiry?: number;
+  verificationCode?: string;
+  verificationCodeExpiry?: number;
 }
 
 const userSchema = new mongoose.Schema<UserDocument>(
@@ -35,6 +37,8 @@ const userSchema = new mongoose.Schema<UserDocument>(
     skills: { type: [String], default: [] },
     resetToken: { type: String, default: undefined },
     resetTokenExpiry: { type: Number, default: undefined },
+    verificationCode: { type: String, default: undefined },
+    verificationCodeExpiry: { type: Number, default: undefined },
   },
   {
     versionKey: false,

@@ -63,13 +63,15 @@ app.get("/health", (_request: Request, response: Response) => {
 
 app.get("/api", (_request: Request, response: Response) => {
   response.status(200).json({
-    message: "Welcome to swipe2work API",
+    message: "Welcome to Nysa API",
     version: "1.0.0",
   });
 });
 
 app.use("/api/user", userRouter);
+app.use("/api/users", userRouter);
 app.use("/api/job", jobRouter);
+app.use("/api/jobs", jobRouter);
 app.use("/api/applications", applicationRouter);
 app.use("/api/media", mediaRouter);
 app.use("/api/company", companyRouter);

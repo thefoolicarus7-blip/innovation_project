@@ -49,6 +49,7 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { resetPassword } = useAuth();
   const strength = getPasswordStrength(newPassword);
@@ -202,19 +203,32 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
             {/* Confirm password field */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Confirm New Password</Text>
-              <TextInput
-                style={[
-                  styles.inputField,
-                  confirmPassword.length > 0 && newPassword !== confirmPassword
-                    ? styles.inputError
-                    : null,
-                ]}
-                placeholder="••••••••"
-                placeholderTextColor={Colors.outline}
-                value={confirmPassword}
-                onChangeText={setConfirmPassword}
-                secureTextEntry
-              />
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[
+                    styles.inputField,
+                    styles.passwordInput,
+                    confirmPassword.length > 0 && newPassword !== confirmPassword
+                      ? styles.inputError
+                      : null,
+                  ]}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  value={confirmPassword}
+                  onChangeText={setConfirmPassword}
+                  secureTextEntry={!showConfirmPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowConfirmPassword((v) => !v)}
+                >
+                  <Icon
+                    name={showConfirmPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.outline}
+                  />
+                </TouchableOpacity>
+              </View>
               {confirmPassword.length > 0 && newPassword !== confirmPassword && (
                 <Text style={styles.errorText}>Passwords do not match</Text>
               )}

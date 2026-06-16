@@ -116,9 +116,9 @@ export const registerNormalUserAccount = createAsyncThunk(
 
 export const verifyEmailAccount = createAsyncThunk(
   "auth/verifyEmailAccount",
-  async (code: string, { rejectWithValue }) => {
+  async ({ code, email }: { code: string; email?: string }, { rejectWithValue }) => {
     try {
-      const payload = await verifyEmailCode(code);
+      const payload = await verifyEmailCode(code, email);
       return payload.message;
     } catch (error) {
       return rejectWithValue(
@@ -130,9 +130,9 @@ export const verifyEmailAccount = createAsyncThunk(
 
 export const resendVerificationCode = createAsyncThunk(
   "auth/resendVerificationCode",
-  async (_, { rejectWithValue }) => {
+  async (email: string | undefined, { rejectWithValue }) => {
     try {
-      const payload = await resendVerificationCodeApi();
+      const payload = await resendVerificationCodeApi(email);
       return payload.message;
     } catch (error) {
       return rejectWithValue(

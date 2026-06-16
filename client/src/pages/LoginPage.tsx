@@ -10,6 +10,7 @@ export function CompanyLoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   if (user) {
@@ -58,14 +59,14 @@ export function CompanyLoginPage() {
             </div>
           </div>
         </section>
-
+ 
         <div className="auth-card-wrap">
           <form className="auth-card" onSubmit={handleSubmit}>
             <div className="form-header">
               <h1>Employer Login</h1>
               <p>Sign in to your swipe2work Company Portal.</p>
             </div>
-
+ 
             <div className="field-wrap">
               <label htmlFor="email">Work Email</label>
               <input
@@ -77,21 +78,48 @@ export function CompanyLoginPage() {
                 required
               />
             </div>
-
+ 
             <div className="field-wrap">
               <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
-              />
+              <div className="password-input-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle-btn"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" /><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" /><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" /><line x1="2" y1="2" x2="22" y2="22" /></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                  )}
+                </button>
+              </div>
             </div>
-
-            {error ? <p className="error-text">{error}</p> : null}
-
+ 
+            {error ? (
+              <div style={{ color: "var(--danger)", fontSize: "0.85rem", textAlign: "center" }}>
+                {error === "Email not verified" ? (
+                  <span>
+                    Your email is not verified.{" "}
+                    <Link to={`/verify-email?email=${encodeURIComponent(email)}`} style={{ textDecoration: "underline", color: "var(--primary)", fontWeight: 600 }}>
+                      Verify Now
+                    </Link>
+                  </span>
+                ) : (
+                  error
+                )}
+              </div>
+            ) : null}
+ 
             <button type="submit" className="primary-btn">
               Sign In to Portal
             </button>

@@ -18,7 +18,10 @@ export function authenticate(
   response: Response,
   next: NextFunction,
 ) {
-  const token = request.cookies.token;
+  let token = request.cookies?.token;
+  if (!token && request.headers.authorization?.startsWith("Bearer ")) {
+    token = request.headers.authorization.slice(7);
+  }
 
   if (!token) {
     response.status(401).json({ message: "Authentication required" });

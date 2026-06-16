@@ -1,3 +1,4 @@
+process.env.NODE_ENV = "test";
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
 import jwt from "jsonwebtoken";
@@ -313,3 +314,72 @@ test("POST /api/media/upload rejects unsupported file types", async () => {
     assert.equal(payload.message, "Only image files (jpeg/png/webp/heic/heif) and pdf are supported");
   });
 });
+
+test("POST /api/users/verify-email validates code and email", async () => {
+  let savedUser: any = null;
+  mockedUserModel.findOne = async () => ({
+    _id: "507f191e810c19729de860ea",
+    email: "test-verify@example.com",
+    isVerified: "false",
+    verificationCode: "123456",
+    verificationCodeExpiry: Date.now() + 600000,
+    save: async function() {
+      savedUser = this;
+      return this;
+    },
+  });
+
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/api/users/verify-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "test-verify@example.com",
+        code: "123456",
+      }),
+    });
+
+    const payload = await response.json() as { message: string };
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.message, "Email verified successfully");
+    assert.ok(savedUser);
+    assert.equal(savedUser.isVerified, "true");
+  });
+});
+
+test("POST /api/users/resend-verification generates code and sends email", async () => {
+  let savedUser: any = null;
+  mockedUserModel.findOne = async () => ({
+    _id: "507f191e810c19729de860ea",
+    email: "test-resend@example.com",
+    isVerified: "false",
+    save: async function() {
+      savedUser = this;
+      return this;
+    },
+  });
+
+  await withServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}/api/users/resend-verification`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: "test-resend@example.com",
+      }),
+    });
+
+    const payload = await response.json() as { message: string };
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.message, "Verification code resent successfully");
+    assert.ok(savedUser);
+    assert.ok(savedUser.verificationCode);
+    assert.ok(savedUser.verificationCodeExpiry > Date.now());
+  });
+});
+

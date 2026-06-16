@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/user.model.js";
 import Candidate from "../models/candidate.model.js";
 import { generateCvSummary } from "../services/ai.service.js";
-import { sendPasswordResetEmail } from "../services/email.service.js";
+import { sendPasswordResetEmail, sendVerificationEmail, verifyEmailExistence } from "../services/email.service.js";
 import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "dev-jwt-secret";
@@ -61,6 +61,14 @@ export async function registerUser(request: Request, response: Response) {
 
   try {
     const normalizedEmail = email.toLowerCase();
+
+    // 1. Validate email existence and format
+    const emailValidation = await verifyEmailExistence(normalizedEmail);
+    if (!emailValidation.isValid) {
+      response.status(400).json({ message: emailValidation.reason });
+      return;
+    }
+
     const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (existingUser) {
@@ -72,6 +80,10 @@ export async function registerUser(request: Request, response: Response) {
 
     const hashedPassword = await bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
 
+    // 2. Generate 6-digit verification code
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+
     const user = await User.create({
       firstName,
       lastName,
@@ -80,7 +92,16 @@ export async function registerUser(request: Request, response: Response) {
       isVerified: "false",
       role: (role ?? "User") as "User" | "Admin" | "company",
       skills: [],
+      verificationCode: otp,
+      verificationCodeExpiry: otpExpiry,
     });
+
+    // 3. Send verification email
+    try {
+      await sendVerificationEmail(normalizedEmail, otp);
+    } catch (emailError) {
+      console.error("[register] failed to send verification email:", emailError);
+    }
 
     const token = signAuthToken(String(user._id), user.email, user.role);
     setAuthCookie(response, token);
@@ -133,6 +154,14 @@ export async function loginUser(request: Request, response: Response) {
       return;
     }
 
+    if (user.isVerified !== "true") {
+      response.status(403).json({
+        message: "Email not verified",
+        email: user.email,
+      });
+      return;
+    }
+
     const token = signAuthToken(String(user._id), user.email, user.role);
     setAuthCookie(response, token);
 
@@ -182,6 +211,14 @@ export async function loginCompanyUser(request: Request, response: Response) {
       return;
     }
 
+    if (user.isVerified !== "true") {
+      response.status(403).json({
+        message: "Email not verified",
+        email: user.email,
+      });
+      return;
+    }
+
     const token = signAuthToken(String(user._id), user.email, user.role);
     setAuthCookie(response, token);
 
@@ -192,6 +229,7 @@ export async function loginCompanyUser(request: Request, response: Response) {
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         role: user.role,
+        isVerified: user.isVerified,
         companyId: user.role === "company" ? String(user._id) : undefined,
       },
     });
@@ -480,5 +518,97 @@ export async function generateSummaryForCV(
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unable to generate summary";
     response.status(500).json({ message });
+  }
+}
+
+export async function verifyEmail(request: Request, response: Response) {
+  const { code, email } = request.body as { code?: string; email?: string };
+
+  const userEmail = email || (request as AuthenticatedRequest).user?.email;
+
+  if (!code) {
+    response.status(400).json({ message: "Incorrect verification code" }); // keep it friendly
+    return;
+  }
+
+  if (!userEmail) {
+    response.status(400).json({ message: "Email is required" });
+    return;
+  }
+
+  try {
+    const user = await User.findOne({ email: userEmail.toLowerCase() });
+
+    if (!user) {
+      response.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    if (user.isVerified === "true") {
+      response.status(200).json({ message: "Email is already verified" });
+      return;
+    }
+
+    if (!user.verificationCode || user.verificationCode !== code.trim()) {
+      response.status(400).json({ message: "Incorrect verification code" });
+      return;
+    }
+
+    if (!user.verificationCodeExpiry || user.verificationCodeExpiry < Date.now()) {
+      response.status(400).json({ message: "Expired verification code" });
+      return;
+    }
+
+    user.isVerified = "true";
+    user.verificationCode = undefined;
+    user.verificationCodeExpiry = undefined;
+    await user.save();
+
+    response.status(200).json({ message: "Email verified successfully" });
+  } catch (error) {
+    response.status(500).json({ message: "Unable to verify email" });
+  }
+}
+
+export async function resendVerificationCode(request: Request, response: Response) {
+  const { email } = request.body as { email?: string };
+
+  const userEmail = email || (request as AuthenticatedRequest).user?.email;
+
+  if (!userEmail) {
+    response.status(400).json({ message: "Email is required" });
+    return;
+  }
+
+  try {
+    const user = await User.findOne({ email: userEmail.toLowerCase() });
+
+    if (!user) {
+      response.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    if (user.isVerified === "true") {
+      response.status(400).json({ message: "Email is already verified" });
+      return;
+    }
+
+    // Generate new code
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.verificationCode = otp;
+    user.verificationCodeExpiry = Date.now() + 10 * 60 * 1000; // 10 minutes
+    await user.save();
+
+    try {
+      await sendVerificationEmail(user.email, otp);
+    } catch (emailError) {
+      console.error("[resend] failed to send verification email:", emailError);
+      response.status(500).json({ message: "Failed email delivery" });
+      return;
+    }
+
+    response.status(200).json({ message: "Verification code resent successfully" });
+  } catch (error) {
+    response.status(500).json({ message: "Unable to resend verification code" });
   }
 }

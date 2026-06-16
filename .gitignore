@@ -48,3 +48,8 @@
 # Temporary files
 **/tmp/
 **/temp/
+
+# Android build/keystore ignore
+**/android/app/.cxx/
+**/android/.cxx/
+**/*.keystore

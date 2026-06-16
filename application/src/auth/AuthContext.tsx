@@ -23,6 +23,8 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
   refreshProfile: () => Promise<void>;
+  verifyEmail: (code: string, email?: string) => Promise<void>;
+  resendVerification: (email?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -67,11 +69,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     const data = await authService.login(email, password);
     setUser(data.user);
+    return data.user;
   };
 
   const register = async (userData: any) => {
     const data = await authService.register(userData);
-    setUser(data.user);
+    if (data.user && data.user.isVerified === "true") {
+      setUser(data.user);
+    }
+    return data.user || data;
   };
 
   const logout = async () => {
@@ -97,6 +103,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const verifyEmail = async (code: string, email?: string) => {
+    const data = await authService.verifyEmail(code, email);
+    if (data.user) {
+      setUser(data.user);
+    } else {
+      await refreshProfile();
+    }
+  };
+
+  const resendVerification = async (email?: string) => {
+    await authService.resendVerification(email);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -107,6 +126,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         updateUser,
         refreshProfile,
+        verifyEmail,
+        resendVerification,
       }}
     >
       {children}

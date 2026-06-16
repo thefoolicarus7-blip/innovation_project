@@ -16,11 +16,13 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Colors } from '../theme/colors';
 import { useAuth } from '../auth/AuthContext';
 
-export const VerifyEmailScreen = ({ navigation }: any) => {
+export const VerifyEmailScreen = ({ route, navigation }: any) => {
   const { user, verifyEmail, resendVerification } = useAuth();
   const [code, setCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
+
+  const emailToVerify = route?.params?.email || user?.email;
 
   const handleVerify = async () => {
     const trimmed = code.trim();
@@ -31,11 +33,11 @@ export const VerifyEmailScreen = ({ navigation }: any) => {
 
     setVerifying(true);
     try {
-      await verifyEmail(trimmed);
+      await verifyEmail(trimmed, emailToVerify);
       Alert.alert(
         'Email Verified!',
-        'Your account is now active.',
-        [{ text: 'Continue', onPress: () => navigation.replace('Main') }],
+        'Your account is now active. Please log in to continue.',
+        [{ text: 'Continue', onPress: () => navigation.replace('Login') }],
       );
     } catch (error: any) {
       const msg =
@@ -49,9 +51,13 @@ export const VerifyEmailScreen = ({ navigation }: any) => {
   };
 
   const handleResend = async () => {
+    if (!emailToVerify) {
+      Alert.alert('Error', 'No email address found to send verification code.');
+      return;
+    }
     setResending(true);
     try {
-      await resendVerification();
+      await resendVerification(emailToVerify);
       Alert.alert('Code Sent', 'A new verification code has been sent to your email.');
     } catch (error: any) {
       const msg =
@@ -79,7 +85,7 @@ export const VerifyEmailScreen = ({ navigation }: any) => {
           <Text style={styles.title}>Verify your email</Text>
           <Text style={styles.subtitle}>
             We sent a 6-digit code to{'\n'}
-            <Text style={styles.emailBold}>{user?.email ?? 'your email'}</Text>
+            <Text style={styles.emailBold}>{emailToVerify || 'your email'}</Text>
             {'\n'}Enter it below to activate your account.
           </Text>
 
@@ -122,9 +128,9 @@ export const VerifyEmailScreen = ({ navigation }: any) => {
             </TouchableOpacity>
           </View>
 
-          {/* Skip for now (optional) */}
-          <TouchableOpacity style={styles.skipBtn} onPress={() => navigation.replace('Main')}>
-            <Text style={styles.skipText}>Skip for now</Text>
+          {/* Back to Login */}
+          <TouchableOpacity style={styles.skipBtn} onPress={() => navigation.replace('Login')}>
+            <Text style={styles.skipText}>Back to Login</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

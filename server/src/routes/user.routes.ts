@@ -13,6 +13,8 @@ import {
   updateUserDocuments,
   forgotPassword,
   resetPassword,
+  verifyEmail,
+  resendVerificationCode,
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -23,6 +25,8 @@ userRouter.post("/logout", logoutUser);
 userRouter.post("/company-login", loginCompanyUser);
 userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/reset-password", resetPassword);
+userRouter.post("/verify-email", verifyEmail);
+userRouter.post("/resend-verification", resendVerificationCode);
 userRouter.get("/me", authenticate, getMyProfile);
 userRouter.patch("/documents", authenticate, updateUserDocuments);
 userRouter.get("/cv", authenticate, getMyCv);

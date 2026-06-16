@@ -22,9 +22,16 @@ export const SignUpScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { register } = useAuth();
 
   const handleSignUp = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+
     if (!firstName || !lastName || !email || !password) {
       Alert.alert('Error', 'All fields are required');
       return;
@@ -32,7 +39,17 @@ export const SignUpScreen = ({ navigation }: any) => {
 
     setLoading(true);
     try {
-      await register({ firstName, lastName, email, password });
+      await register({ firstName, lastName, email: email.trim(), password });
+      Alert.alert(
+        'Registration Success',
+        'Verification code has been sent to your email.',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.navigate('VerifyEmail', { email: email.trim() }),
+          },
+        ]
+      );
     } catch (error: any) {
       Alert.alert('Registration Failed', error.response?.data?.message || 'Something went wrong');
     } finally {
@@ -147,14 +164,26 @@ export const SignUpScreen = ({ navigation }: any) => {
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={styles.inputField}
-                placeholder="••••••••"
-                placeholderTextColor={Colors.outline}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.inputField, styles.passwordInput]}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword((v) => !v)}
+                >
+                  <Icon
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.outline}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
 
@@ -369,5 +398,18 @@ const styles = StyleSheet.create({
   },
   footerLink: {
     textDecorationLine: 'underline',
+  },
+  passwordRow: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 48,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 14,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
 });

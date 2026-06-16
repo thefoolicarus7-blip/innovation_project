@@ -220,16 +220,17 @@ export async function resetPasswordApi(
   });
 }
 
-export async function verifyEmailCode(code: string): Promise<{ message: string }> {
+export async function verifyEmailCode(code: string, email?: string): Promise<{ message: string }> {
   return apiRequest<{ message: string }>("/user/verify-email", {
     method: "POST",
-    body: JSON.stringify({ code }),
+    body: JSON.stringify({ code, email }),
   });
 }
 
-export async function resendVerificationCodeApi(): Promise<{ message: string }> {
+export async function resendVerificationCodeApi(email?: string): Promise<{ message: string }> {
   return apiRequest<{ message: string }>("/user/resend-verification", {
     method: "POST",
+    body: JSON.stringify({ email }),
   });
 }
 

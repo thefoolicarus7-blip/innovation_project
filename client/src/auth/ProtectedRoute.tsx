@@ -14,6 +14,10 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     return <Navigate to="/" state={{ from: location }} replace />;
   }
 
+  if (user.isVerified === "false") {
+    return <Navigate to={`/verify-email?email=${encodeURIComponent(user.email)}`} replace />;
+  }
+
   if (!user || !allowedRoles.includes(user.role)) {
     return <Navigate to="/forbidden" replace />;
   }

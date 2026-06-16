@@ -1,5 +1,5 @@
 import { FormEvent, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   resendVerificationCode,
@@ -10,22 +10,26 @@ import {
 export function VerifyEmailPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const user = useAppSelector((state: any) => state.auth.user);
 
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "resending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
 
+  const emailParam = searchParams.get("email") || "";
+  const emailToVerify = user?.email || emailParam;
+
   // Already verified — send to the right dashboard
-  if (user?.isVerified === "true") {
+  if (user && user.isVerified === "true") {
     const role = user.role?.toLowerCase();
     if (role === "admin") return <Navigate to="/admin" replace />;
     if (role === "company") return <Navigate to="/portal/jobs" replace />;
     return <Navigate to="/user/dashboard" replace />;
   }
 
-  // Not logged in
-  if (!user) return <Navigate to="/" replace />;
+  // Not logged in and no email param
+  if (!emailToVerify) return <Navigate to="/" replace />;
 
   const handleVerify = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -38,17 +42,20 @@ export function VerifyEmailPage() {
     setStatus("loading");
     setMessage("");
 
-    const result = await dispatch(verifyEmailAccount(code.trim()));
+    const result = await dispatch(verifyEmailAccount({ code: code.trim(), email: emailToVerify }));
 
     if (verifyEmailAccount.fulfilled.match(result)) {
-      dispatch(setUserVerified());
+      if (user) {
+        dispatch(setUserVerified());
+      }
       setStatus("success");
       setMessage("Email verified! Redirecting…");
       setTimeout(() => {
-        const role = user.role?.toLowerCase();
+        const role = user?.role?.toLowerCase();
         if (role === "admin") navigate("/admin");
         else if (role === "company") navigate("/portal/jobs");
-        else navigate("/user/dashboard");
+        else if (role === "user" || role === "admin") navigate("/user/dashboard");
+        else navigate("/"); // Redirect to root login page on success
       }, 1500);
     } else {
       setStatus("error");
@@ -59,7 +66,7 @@ export function VerifyEmailPage() {
   const handleResend = async () => {
     setStatus("resending");
     setMessage("");
-    const result = await dispatch(resendVerificationCode());
+    const result = await dispatch(resendVerificationCode(emailToVerify));
     if (resendVerificationCode.fulfilled.match(result)) {
       setStatus("idle");
       setMessage("A new code has been sent to your email.");
@@ -86,7 +93,7 @@ export function VerifyEmailPage() {
               <h1>Verify your email</h1>
               <p>
                 We sent a 6-digit code to{" "}
-                <strong>{user.email}</strong>. Enter it below to activate your
+                <strong>{emailToVerify}</strong>. Enter it below to activate your
                 account.
               </p>
             </div>

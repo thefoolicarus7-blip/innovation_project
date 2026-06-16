@@ -1,4 +1,5 @@
 import * as nodemailer from "nodemailer";
+import { promises as dnsPromises } from "dns";
 
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
@@ -214,4 +215,56 @@ export async function sendPasswordResetEmail(
     html,
     `Reset your password: ${resetLink}\n\nExpires in 1 hour.`,
   );
+}
+
+export async function verifyEmailExistence(email: string): Promise<{ isValid: boolean; reason?: string }> {
+  // 1. Basic Format
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return { isValid: false, reason: "Please enter a valid email address." };
+  }
+
+  const parts = email.split("@");
+  if (parts.length !== 2) {
+    return { isValid: false, reason: "Please enter a valid email address." };
+  }
+  const [localPart, domain] = parts;
+  if (!localPart || !domain) {
+    return { isValid: false, reason: "Please enter a valid email address." };
+  }
+
+  // 2. Disposable domain check
+  const disposableDomains = new Set([
+    "mailinator.com", "yopmail.com", "10minutemail.com", "tempmail.com", 
+    "dispostable.com", "sharklasers.com", "guerrillamail.com", "trashmail.com", 
+    "getairmail.com", "fakeinbox.com", "maildrop.cc", "temp-mail.org",
+    "disposable.com", "throwawaymail.com", "mailnesia.com", "mailcatch.com"
+  ]);
+
+  if (disposableDomains.has(domain.toLowerCase())) {
+    return { isValid: false, reason: "Please use a real email account." };
+  }
+
+  // Bypassing DNS MX record checks in test mode so tests run fast and offline
+  if (process.env.NODE_ENV === "test") {
+    return { isValid: true };
+  }
+
+  // 3. MX Record check
+  try {
+    const mxRecords = await dnsPromises.resolveMx(domain);
+    if (!mxRecords || mxRecords.length === 0) {
+      return { isValid: false, reason: "This email address does not exist." };
+    }
+  } catch (error: any) {
+    console.error(`[email-val] DNS MX lookup failed for ${domain}:`, error);
+    // If it's a structural error like ENOTFOUND or ENODATA, it means the domain/MX records don't exist
+    if (error.code === "ENOTFOUND" || error.code === "ENODATA") {
+      return { isValid: false, reason: "This email address does not exist." };
+    }
+    // Fallback or treat transient network errors
+    return { isValid: false, reason: "This email address does not exist." };
+  }
+
+  return { isValid: true };
 }

@@ -21,14 +21,21 @@ export const ForgotPasswordScreen = ({ navigation }: any) => {
   const { forgotPassword } = useAuth();
 
   const handleSubmit = async () => {
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       Alert.alert('Error', 'Please enter your email address');
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
     setLoading(true);
     try {
-      const data = await forgotPassword(email.trim().toLowerCase());
+      const data = await forgotPassword(trimmedEmail.toLowerCase());
 
       if (data.resetToken) {
         // Development mode: server returned the raw token directly

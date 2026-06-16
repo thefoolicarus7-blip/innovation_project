@@ -47,6 +47,14 @@ export const authService = {
       await AsyncStorage.removeItem('token');
     }
   },
+  verifyEmail: async (code: string, email?: string) => {
+    const response = await api.post('/user/verify-email', { code, email });
+    return response.data;
+  },
+  resendVerification: async (email?: string) => {
+    const response = await api.post('/user/resend-verification', { email });
+    return response.data;
+  },
 };
 
 export const mediaService = {

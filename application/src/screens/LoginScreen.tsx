@@ -19,9 +19,16 @@ export const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
 
   const handleLogin = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Invalid Email', 'Please enter a valid email address.');
+      return;
+    }
+
     if (!email || !password) {
       Alert.alert('Error', 'Please enter email and password');
       return;
@@ -29,9 +36,29 @@ export const LoginScreen = ({ navigation }: any) => {
 
     setLoading(true);
     try {
-      await login(email, password);
+      const loggedInUser: any = await login(email.trim(), password);
+      if (loggedInUser && loggedInUser.isVerified === "false") {
+        navigation.navigate('VerifyEmail', { email: loggedInUser.email });
+      } else {
+        navigation.replace('Main');
+      }
     } catch (error: any) {
-      Alert.alert('Login Failed', error.response?.data?.message || 'Something went wrong');
+      const responseMsg = error.response?.data?.message;
+      if (responseMsg === "Email not verified") {
+        Alert.alert(
+          'Verification Required',
+          'Your email is not verified. Please verify it before logging in.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Verify Now',
+              onPress: () => navigation.navigate('VerifyEmail', { email: email.trim() }),
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Login Failed', responseMsg || 'Something went wrong');
+      }
     } finally {
       setLoading(false);
     }
@@ -45,7 +72,7 @@ export const LoginScreen = ({ navigation }: any) => {
       <StatusBar backgroundColor={Colors.primary} barStyle="light-content" />
       <View style={styles.safeArea}>
         <ScrollView contentContainerStyle={styles.container}>
-          {/* ... (Header and Logo sections) */}
+          {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerLeft}>
               <View style={styles.headerIconContainer}>
@@ -88,14 +115,26 @@ export const LoginScreen = ({ navigation }: any) => {
 
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Password</Text>
-              <TextInput
-                style={styles.inputField}
-                placeholder="••••••••"
-                placeholderTextColor={Colors.outline}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.inputField, styles.passwordInput]}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowPassword((v) => !v)}
+                >
+                  <Icon
+                    name={showPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.outline}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <TouchableOpacity
@@ -342,5 +381,18 @@ const styles = StyleSheet.create({
   footerLinkBold: {
     color: Colors.primary,
     fontWeight: 'bold',
+  },
+  passwordRow: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 48,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 14,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
 });
