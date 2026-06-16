@@ -1,0 +1,98 @@
+[
+  {
+    "skills": [],
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "email": "jane@example.com",
+    "password": "$2b$10$khp7PwBHDCQ77h8ZZbMsDesDlSw/oWCC8oO/w/7JeXJUDbzorS7u6",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "204448c825875d7b82568ff5"
+  },
+  {
+    "skills": [],
+    "firstName": "Acme",
+    "lastName": "Corp",
+    "email": "acme@company.com",
+    "password": "$2b$10$xdGzNwaHDKbNyUcbsgh11OmlyZmQItnZk6/HoUNTXDMF1GBvhjVTC",
+    "isVerified": "false",
+    "role": "company",
+    "_id": "707013815593b1e83ba5e410"
+  },
+  {
+    "_id": "f2f4d961dfa0c8d3b333e3c1",
+    "firstName": "Alex",
+    "lastName": "Builder",
+    "email": "alex.builder@swipe2work.test",
+    "password": "$2b$10$o50iogFj.DvjGtK8Prxm7OlgSyXV36SWBDBJu0nKsemNqEPGpfXxi",
+    "isVerified": "false",
+    "role": "User",
+    "skills": [
+      "React",
+      "TypeScript",
+      "Node.js",
+      "Express",
+      "MongoDB"
+    ]
+  },
+  {
+    "skills": [],
+    "firstName": "Sarah",
+    "lastName": "Demo",
+    "email": "sarah.demo@test.com",
+    "password": "$2b$10$Qn0aWgO2AWPJ6Z7Ds.UKqegBY.9lFCWlVe7pBAglkKJFJEOz8UwFq",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "c097f179897e56e114386815"
+  },
+  {
+    "skills": [],
+    "firstName": "Sarah",
+    "lastName": "Demo",
+    "email": "sarah.demo.1781570639582@test.com",
+    "password": "$2b$10$YLx9paEoyhc0ZR363ls5QOofFZypcpb5uiT7Bke3MjKXMtHrnMh0.",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "8a0b23130e5f1cd5f07fa297"
+  },
+  {
+    "skills": [],
+    "firstName": "Jordan",
+    "lastName": "Smith",
+    "email": "aitest.1781571208956@test.com",
+    "password": "$2b$10$rfUf8JNnuJ6rbkGuWtaswegJJVZlUCb5RWZNGoOA2SP3PH29ymDu.",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "2a8a7686f302512a8270293a"
+  },
+  {
+    "skills": [],
+    "firstName": "Jordan",
+    "lastName": "Smith",
+    "email": "aitest.1781571609373@test.com",
+    "password": "$2b$10$17k67C68G2zHxh48Fr/9eeGhbxQ6PdyA97BJiI65zsVXIkB7q9X8a",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "930b7c35e7de3f9e4cfc82e0"
+  },
+  {
+    "skills": [],
+    "firstName": "Alex",
+    "lastName": "Tester",
+    "email": "cvtest.1781584102454@test.com",
+    "password": "$2b$10$CMTy6KY/AnkP66pmHoNXAOXLZWJt7Sqq.yTLBK4jyt0MfFqRzhOdm",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "b9f1f6d39a831693feb0874b"
+  },
+  {
+    "skills": [],
+    "firstName": "Alex",
+    "lastName": "Tester",
+    "email": "cvtest.1781584191886@test.com",
+    "password": "$2b$10$5fPIPRdLjNZWYLIcECE7E.RNxMH.uTCGrH54nTDsvhtWErf/zCC3.",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "99ba1ccd2590dbb036e74b12"
+  }
+]

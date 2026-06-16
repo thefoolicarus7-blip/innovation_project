@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Swipe2Work - Job Discovery</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f1f0fa",
+                    "outline": "#757684",
+                    "surface-tint": "#3755c3",
+                    "primary-container": "#1e40af",
+                    "primary": "#00288e",
+                    "surface-variant": "#e3e1eb",
+                    "on-tertiary-fixed": "#2a1700",
+                    "primary-fixed": "#dde1ff",
+                    "secondary": "#006c4a",
+                    "surface-bright": "#fbf8ff",
+                    "on-surface": "#1a1b22",
+                    "on-secondary-fixed": "#002114",
+                    "surface-container-highest": "#e3e1eb",
+                    "secondary-container": "#82f5c1",
+                    "on-secondary-container": "#00714e",
+                    "on-tertiary-container": "#ffa929",
+                    "on-primary-fixed": "#001453",
+                    "on-surface-variant": "#444653",
+                    "tertiary-container": "#6b4200",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "inverse-surface": "#2f3037",
+                    "on-primary-container": "#a8b8ff",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#68dba9",
+                    "tertiary-fixed": "#ffddb8",
+                    "tertiary": "#4c2e00",
+                    "on-primary-fixed-variant": "#173bab",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#fbf8ff",
+                    "background": "#fbf8ff",
+                    "on-secondary": "#ffffff",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#b8c4ff",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#dad9e3",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#e8e7f1",
+                    "surface-container": "#eeedf7",
+                    "on-background": "#1a1b22",
+                    "primary-fixed-dim": "#b8c4ff",
+                    "error": "#ba1a1a",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-container-low": "#f4f2fc",
+                    "secondary-fixed": "#85f8c4",
+                    "outline-variant": "#c4c5d5",
+                    "on-secondary-fixed-variant": "#005137"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .fill-active {
+            font-variation-settings: 'FILL' 1;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .job-card-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.2);
+        }
+        .glow-secondary {
+            box-shadow: 0 0 20px rgba(133, 248, 196, 0.4);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-white">
+<!-- TopAppBar -->
+<header class="bg-surface/80 dark:bg-surface-dark/80 backdrop-blur-xl fixed top-0 w-full z-50 no-border tonal-layering shadow-none">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a professional man with a confident smile in a modern office environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEKC5jguvII3c85xsPpG5tKrVQo1XBpv4ejkBu2CCL6y5b5pe0a8KE39qtQdpnE-oD6DrQfXCImJj24Ru7rzBVKPjusZUw93SUeb5DdwRXtGmCO4lu5az77p4xZo5hpRjfROfBsBLl4D8WUX4qpDCL8uGuB02Gb00dYwtnGptHV2TIKsb6VJWFPTJunFbC3243X17BW4Hpf6kpMeHZunaX3lbD68Cg9Yf9zIXMmjo2DhGpVEcXM5xXtQ7k9_UfyPnloYX-rRyQyFHb"/>
+</div>
+</div>
+<div class="font-plus-jakarta text-sm font-bold tracking-widest text-blue-900 dark:text-blue-300">
+<span class="text-xl font-black tracking-tighter text-blue-900 dark:text-blue-100 uppercase">SWIPE2WORK</span>
+</div>
+<button class="text-blue-900 dark:text-blue-300 hover:opacity-80 transition-opacity scale-95 active:transition-transform">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+</div>
+</header>
+<main class="pt-20 pb-32 min-h-screen bg-gradient-to-b from-surface to-surface-container-low px-4 md:px-8 max-w-lg mx-auto">
+<!-- Discovery Header -->
+<div class="mb-8 pl-2">
+<p class="font-headline text-primary font-bold tracking-tight text-sm uppercase mb-1">New Opportunity</p>
+<h1 class="font-headline text-3xl font-extrabold text-on-surface tracking-tighter leading-tight">Handpicked for you</h1>
+</div>
+<!-- Cinematic Job Card -->
+<div class="relative w-full aspect-[4/5] rounded-[2rem] overflow-hidden job-card-shadow group">
+<!-- Background Image -->
+<div class="absolute inset-0">
+<img alt="Workspace" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="cinematic wide shot of a futuristic minimalist architectural office with soft natural light and glass walls" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB645x39_sBYciZruifiFLepOc_bSiFO_r6pnVdnwKXsvM7WSpKeqxGavhTiKW6-akCcXEp62d0YQb6Kk_FS5KdwdDxjXSe71UQ2cxaW_q3OKQu2aImBTvEyvGcwHefTeQBcSFUuujFp9yTYE0ywFU5HqZrViJ7_5km90lnSz7i7IxKxDwWChrMsyAk4w2edN-jmIjdC_YV4GYF4UyEQbdPjr3VpKdpsMrmkT3l6OzQWXbjKiI4yRPVzLZ3eqcSOEcPxwBnNWzf4qaT"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent"></div>
+</div>
+<!-- Match Score Badge -->
+<div class="absolute top-6 left-6 flex items-center gap-2 glass-card rounded-full px-4 py-2 border border-white/20 glow-secondary">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed animate-pulse"></div>
+<span class="font-headline text-white font-bold text-sm tracking-wide">98% Match</span>
+</div>
+<!-- Job Details Overlay -->
+<div class="absolute bottom-0 left-0 right-0 p-8">
+<div class="flex flex-wrap gap-2 mb-4">
+<div class="glass-card px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-white text-[18px]" data-icon="payments">payments</span>
+<span class="text-white/90 text-xs font-semibold uppercase tracking-wider">USD 140k - 180k</span>
+</div>
+<div class="glass-card px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2">
+<span class="material-symbols-outlined text-white text-[18px]" data-icon="location_on">location_on</span>
+<span class="text-white/90 text-xs font-semibold uppercase tracking-wider">San Francisco / Remote</span>
+</div>
+</div>
+<h2 class="font-headline text-white text-3xl font-extrabold leading-tight mb-1">Senior Creative Director</h2>
+<div class="flex items-center gap-2 text-white/70 font-medium">
+<span class="text-lg">Stellaris Design Systems</span>
+<span class="w-1 h-1 rounded-full bg-white/40"></span>
+<span class="text-sm">5d ago</span>
+</div>
+</div>
+</div>
+<!-- Floating Interaction Actions -->
+<div class="fixed bottom-32 left-1/2 -translate-x-1/2 w-full max-w-sm flex justify-center items-center gap-6 px-6 z-40">
+<!-- Reject -->
+<button class="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-error border-4 border-error/5 hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-3xl font-bold" data-icon="close">close</span>
+</button>
+<!-- Super Like -->
+<button class="w-20 h-20 rounded-full bg-primary shadow-2xl flex items-center justify-center text-white border-4 border-primary-container hover:scale-110 active:scale-90 transition-all -translate-y-2">
+<span class="material-symbols-outlined text-4xl fill-active" data-icon="grade" style="font-variation-settings: 'FILL' 1;">grade</span>
+</button>
+<!-- Apply / Heart -->
+<button class="w-16 h-16 rounded-full bg-white shadow-xl flex items-center justify-center text-secondary border-4 border-secondary/5 hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-3xl font-bold fill-active" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-6 left-0 right-0 mx-auto w-[92%] max-w-md z-50 flex justify-around items-center py-2 px-4 bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl rounded-full shadow-[0_8px_24px_rgba(0,0,0,0.06)] no-border tonal-layering">
+<!-- Discover (Active) -->
+<a class="flex flex-col items-center justify-center bg-blue-900 dark:bg-blue-600 text-white rounded-full p-3 tap-highlight-none active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined fill-active" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-plus-jakarta text-[10px] font-semibold uppercase tracking-wider mt-0.5">Discover</span>
+</a>
+<!-- Matches -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors tap-highlight-none active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="style">style</span>
+<span class="font-plus-jakarta text-[10px] font-semibold uppercase tracking-wider mt-0.5">Matches</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 p-3 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors tap-highlight-none active:scale-90 transition-transform duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-plus-jakarta text-[10px] font-semibold uppercase tracking-wider mt-0.5">Profile</span>
+</a>
+</nav>
+</body></html>
