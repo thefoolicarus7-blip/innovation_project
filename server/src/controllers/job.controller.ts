@@ -10,7 +10,7 @@ const ALLOWED_ACTIONS: SwipeAction[] = ["left", "right", "up"];
 
 export async function listJobs(request: AuthenticatedRequest, response: Response) {
   const userId = request.user?.userId;
-  if (!userId) {
+  if (!userId) {git 
     response.status(401).json({ message: "Unauthorized" });
     return;
   }
