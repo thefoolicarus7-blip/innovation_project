@@ -16,14 +16,46 @@ import { useAuth } from '../auth/AuthContext';
 
 import { StatusBar } from 'react-native';
 
+interface StrengthChecks {
+  length: boolean;
+  uppercase: boolean;
+  lowercase: boolean;
+  digit: boolean;
+  special: boolean;
+}
+
+function getPasswordStrength(password: string): {
+  level: number;
+  color: string;
+  label: string;
+  checks: StrengthChecks;
+} {
+  const checks: StrengthChecks = {
+    length: password.length >= 8,
+    uppercase: /[A-Z]/.test(password),
+    lowercase: /[a-z]/.test(password),
+    digit: /[0-9]/.test(password),
+    special: /[^A-Za-z0-9]/.test(password),
+  };
+  const passed = Object.values(checks).filter(Boolean).length;
+  const level = Math.min(passed, 4);
+  const colors = ['#e5e7eb', '#ef4444', '#f97316', '#eab308', '#22c55e'];
+  const labels = ['', 'Very Weak', 'Weak', 'Fair', 'Strong'];
+  return { level, color: colors[level], label: labels[level], checks };
+}
+
 export const SignUpScreen = ({ navigation }: any) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const { register } = useAuth();
+
+  const strength = getPasswordStrength(password);
 
   const handleSignUp = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -32,8 +64,18 @@ export const SignUpScreen = ({ navigation }: any) => {
       return;
     }
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstName || !lastName || !email || !password || !confirmPassword) {
       Alert.alert('Error', 'All fields are required');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (strength.level < 4) {
+      Alert.alert('Weak Password', 'Please meet all password requirements before continuing');
       return;
     }
 
@@ -184,6 +226,90 @@ export const SignUpScreen = ({ navigation }: any) => {
                   />
                 </TouchableOpacity>
               </View>
+
+              {/* Strength bar & checklist */}
+              {password.length > 0 && (
+                <View style={styles.strengthContainer}>
+                  <View style={styles.strengthBar}>
+                    {[1, 2, 3, 4].map((seg) => (
+                      <View
+                        key={seg}
+                        style={[
+                          styles.strengthSegment,
+                          {
+                            backgroundColor:
+                              strength.level >= seg ? strength.color : '#e5e7eb',
+                          },
+                        ]}
+                      />
+                    ))}
+                  </View>
+                  {strength.label ? (
+                    <Text style={[styles.strengthLabel, { color: strength.color }]}>
+                      {strength.label}
+                    </Text>
+                  ) : null}
+                  <View style={styles.checkList}>
+                    {[
+                      ['length', 'At least 8 characters'],
+                      ['uppercase', 'One uppercase letter'],
+                      ['lowercase', 'One lowercase letter'],
+                      ['digit', 'One number'],
+                      ['special', 'One special character'],
+                    ].map(([key, label]: any) => (
+                      <View key={key} style={styles.checkItem}>
+                        <Icon
+                          name={strength.checks[key as keyof StrengthChecks] ? 'check-circle' : 'circle-outline'}
+                          size={14}
+                          color={strength.checks[key as keyof StrengthChecks] ? '#16a34a' : '#9ca3af'}
+                        />
+                        <Text
+                          style={[
+                            styles.checkLabel,
+                            { color: strength.checks[key as keyof StrengthChecks] ? '#16a34a' : '#9ca3af' },
+                          ]}
+                        >
+                          {label}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+              )}
+            </View>
+
+            {/* Confirm Password */}
+            <View style={styles.inputGroup}>
+              <Text style={styles.inputLabel}>Confirm Password</Text>
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[
+                    styles.inputField,
+                    styles.passwordInput,
+                    confirmPassword.length > 0 && password !== confirmPassword
+                      ? styles.inputError
+                      : null,
+                  ]}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  value={confirmPassword}
+                  onChangeText={confirmPassword => setConfirmPassword(confirmPassword)}
+                  secureTextEntry={!showConfirmPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowConfirmPassword((v) => !v)}
+                >
+                  <Icon
+                    name={showConfirmPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.outline}
+                  />
+                </TouchableOpacity>
+              </View>
+              {confirmPassword.length > 0 && password !== confirmPassword && (
+                <Text style={styles.errorText}>Passwords do not match</Text>
+              )}
             </View>
           </View>
 
@@ -411,5 +537,46 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     justifyContent: 'center',
+  },
+  strengthContainer: {
+    marginTop: 8,
+  },
+  strengthBar: {
+    flexDirection: 'row',
+    gap: 4,
+    marginBottom: 4,
+  },
+  strengthSegment: {
+    flex: 1,
+    height: 4,
+    borderRadius: 2,
+  },
+  strengthLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  checkList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  checkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    width: '45%',
+  },
+  checkLabel: {
+    fontSize: 12,
+  },
+  errorText: {
+    fontSize: 12,
+    color: '#ef4444',
+    marginTop: 4,
+  },
+  inputError: {
+    borderWidth: 1,
+    borderColor: '#ef4444',
   },
 });

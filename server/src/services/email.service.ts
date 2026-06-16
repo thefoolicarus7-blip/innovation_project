@@ -166,6 +166,10 @@ export async function sendVerificationEmail(
     </p>`,
   );
 
+  console.log("\n==========================================");
+  console.log(`🔑 DEVELOPMENT OTP CODE: ${otp}`);
+  console.log("==========================================\n");
+
   await sendMail(
     toEmail,
     "Your Swipe2Work verification code",
@@ -208,6 +212,10 @@ export async function sendPasswordResetEmail(
       If you did not request this, you can safely ignore this email.
     </p>`,
   );
+
+  console.log("\n==========================================");
+  console.log(`🔑 DEVELOPMENT RESET TOKEN: ${rawToken}`);
+  console.log("==========================================\n");
 
   await sendMail(
     toEmail,
@@ -262,8 +270,8 @@ export async function verifyEmailExistence(email: string): Promise<{ isValid: bo
     if (error.code === "ENOTFOUND" || error.code === "ENODATA") {
       return { isValid: false, reason: "This email address does not exist." };
     }
-    // Fallback or treat transient network errors
-    return { isValid: false, reason: "This email address does not exist." };
+    // Fallback: assume valid if we encounter transient network errors (e.g. ECONNREFUSED)
+    return { isValid: true };
   }
 
   return { isValid: true };

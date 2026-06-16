@@ -25,6 +25,7 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
   verifyEmail: (code: string, email?: string) => Promise<void>;
   resendVerification: (email?: string) => Promise<void>;
+  changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -116,6 +117,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await authService.resendVerification(email);
   };
 
+  const changePassword = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    await authService.changePassword(currentPassword, newPassword, confirmPassword);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -128,6 +133,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         refreshProfile,
         verifyEmail,
         resendVerification,
+        changePassword,
       }}
     >
       {children}

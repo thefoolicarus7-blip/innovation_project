@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   logoSection: {
     alignItems: 'center',
     marginBottom: 40,
-  }
+  },
   largeIconContainer: {
     width: 64,
     height: 64,

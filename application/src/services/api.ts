@@ -55,6 +55,10 @@ export const authService = {
     const response = await api.post('/user/resend-verification', { email });
     return response.data;
   },
+  changePassword: async (currentPassword: string, newPassword: string, confirmPassword: string) => {
+    const response = await api.post('/user/change-password', { currentPassword, newPassword, confirmPassword });
+    return response.data;
+  },
 };
 
 export const mediaService = {

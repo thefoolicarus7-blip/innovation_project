@@ -18,22 +18,6 @@ import { setupInterviewSocket } from "./controllers/ai.interview.controller.js";
 import { connectDB } from "./services/db.js";
 export const app = express();
 
-app.use(
-  async (request: Request, _response: Response, next: express.NextFunction) => {
-    // Skip DB check for basic health and info routes
-    if (request.path === "/health" || request.path === "/api") {
-      return next();
-    }
-
-    try {
-      await connectDB();
-      next();
-    } catch (error) {
-      next(error);
-    }
-  },
-);
-
 const ALLOWED_ORIGINS = (
   process.env.CORS_ALLOWED_ORIGINS ?? "http://localhost:5173"
 )
@@ -56,6 +40,22 @@ const corsOptions: cors.CorsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
+
+app.use(
+  async (request: Request, _response: Response, next: express.NextFunction) => {
+    // Skip DB check for basic health and info routes
+    if (request.path === "/health" || request.path === "/api") {
+      return next();
+    }
+
+    try {
+      await connectDB();
+      next();
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 app.get("/health", (_request: Request, response: Response) => {
   response.status(200).type("text/plain").send("OK");

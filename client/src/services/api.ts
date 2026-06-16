@@ -220,6 +220,17 @@ export async function resetPasswordApi(
   });
 }
 
+export async function changePasswordApi(
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string,
+): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>("/user/change-password", {
+    method: "POST",
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+  });
+}
+
 export async function verifyEmailCode(code: string, email?: string): Promise<{ message: string }> {
   return apiRequest<{ message: string }>("/user/verify-email", {
     method: "POST",

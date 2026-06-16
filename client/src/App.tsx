@@ -22,6 +22,7 @@ import { UserApplicationsPage } from "./pages/UserApplicationsPage";
 import { CVBuilderPage } from "./pages/CVBuilderPage";
 import { UserLoginPage } from "./pages/UserLoginPage";
 import { UserRegisterPage } from "./pages/UserRegisterPage";
+import { ChangePasswordPage } from "./pages/ChangePasswordPage";
 import { useAppDispatch } from "./store/hooks";
 import { InterviewPrepPage } from "./pages/InterviewPrep";
 import { AdminLayout } from "./layouts/AdminLayout";
@@ -62,6 +63,7 @@ export default function App() {
           />
           <Route path="analytics" element={<AnalyticsPage />} />
           <Route path="company" element={<CompanyProfilePage />} />
+          <Route path="change-password" element={<ChangePasswordPage />} />
         </Route>
       </Route>
 
@@ -72,6 +74,7 @@ export default function App() {
           <Route path="applications" element={<UserApplicationsPage />} />
           <Route path="cv-builder" element={<CVBuilderPage />} />
           <Route path="interview-prep" element={<InterviewPrepPage />} />
+          <Route path="change-password" element={<ChangePasswordPage />} />
         </Route>
       </Route>
 

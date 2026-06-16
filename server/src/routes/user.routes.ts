@@ -15,6 +15,7 @@ import {
   resetPassword,
   verifyEmail,
   resendVerificationCode,
+  changePassword,
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -27,6 +28,7 @@ userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/reset-password", resetPassword);
 userRouter.post("/verify-email", verifyEmail);
 userRouter.post("/resend-verification", resendVerificationCode);
+userRouter.post("/change-password", authenticate, changePassword);
 userRouter.get("/me", authenticate, getMyProfile);
 userRouter.patch("/documents", authenticate, updateUserDocuments);
 userRouter.get("/cv", authenticate, getMyCv);

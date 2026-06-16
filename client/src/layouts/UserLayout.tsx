@@ -9,6 +9,7 @@ const navItems = [
   { to: "/user/applications", label: "My Applications" },
   { to: "/user/cv-builder", label: "Build My CV" },
   { to: "/user/interview-prep", label: "AI Interview Prep" },
+  { to: "/user/change-password", label: "Change Password" },
 ];
 
 export function UserLayout() {

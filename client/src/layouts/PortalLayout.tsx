@@ -10,6 +10,7 @@ const navItems = [
   { to: "/portal/candidates", label: "Candidates" },
   { to: "/portal/analytics", label: "Analytics" },
   { to: "/portal/company", label: "Company Profile" },
+  { to: "/portal/change-password", label: "Change Password" },
 ];
 
 export function PortalLayout() {

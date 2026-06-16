@@ -43,6 +43,25 @@ function setAuthCookie(response: Response, token: string) {
   response.cookie(TOKEN_COOKIE_NAME, token, COOKIE_OPTIONS);
 }
 
+export function validatePassword(password: string): { isValid: boolean; reason?: string } {
+  if (password.length < 8) {
+    return { isValid: false, reason: "Password must be at least 8 characters long." };
+  }
+  if (!/[A-Z]/.test(password)) {
+    return { isValid: false, reason: "Password must contain at least one uppercase letter." };
+  }
+  if (!/[a-z]/.test(password)) {
+    return { isValid: false, reason: "Password must contain at least one lowercase letter." };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { isValid: false, reason: "Password must contain at least one number." };
+  }
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return { isValid: false, reason: "Password must contain at least one special character." };
+  }
+  return { isValid: true };
+}
+
 export async function registerUser(request: Request, response: Response) {
   const { firstName, lastName, email, password, role } = request.body as {
     firstName?: string;
@@ -61,6 +80,13 @@ export async function registerUser(request: Request, response: Response) {
 
   try {
     const normalizedEmail = email.toLowerCase();
+
+    // Validate password complexity
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      response.status(400).json({ message: passwordValidation.reason });
+      return;
+    }
 
     // 1. Validate email existence and format
     const emailValidation = await verifyEmailExistence(normalizedEmail);
@@ -89,7 +115,7 @@ export async function registerUser(request: Request, response: Response) {
       lastName,
       email: normalizedEmail,
       password: hashedPassword,
-      isVerified: "false",
+      isVerified: IS_DEVELOPMENT ? "true" : "false",
       role: (role ?? "User") as "User" | "Admin" | "company",
       skills: [],
       verificationCode: otp,
@@ -295,6 +321,13 @@ export async function resetPassword(request: Request, response: Response) {
 
   if (password !== confirmPassword) {
     response.status(400).json({ message: "Passwords do not match" });
+    return;
+  }
+
+  // Validate password complexity
+  const passwordValidation = validatePassword(password);
+  if (!passwordValidation.isValid) {
+    response.status(400).json({ message: passwordValidation.reason });
     return;
   }
 
@@ -610,5 +643,58 @@ export async function resendVerificationCode(request: Request, response: Respons
     response.status(200).json({ message: "Verification code resent successfully" });
   } catch (error) {
     response.status(500).json({ message: "Unable to resend verification code" });
+  }
+}
+
+export async function changePassword(request: Request, response: Response) {
+  const userId = (request as AuthenticatedRequest).user?.userId;
+  if (!userId) {
+    response.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+
+  const { currentPassword, newPassword, confirmPassword } = request.body as {
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+  };
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    response.status(400).json({
+      message: "currentPassword, newPassword, and confirmPassword are required",
+    });
+    return;
+  }
+
+  if (newPassword !== confirmPassword) {
+    response.status(400).json({ message: "Passwords do not match" });
+    return;
+  }
+
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid) {
+    response.status(400).json({ message: passwordValidation.reason });
+    return;
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      response.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isPasswordValid) {
+      response.status(400).json({ message: "Incorrect current password" });
+      return;
+    }
+
+    user.password = await bcrypt.hash(newPassword, PASSWORD_SALT_ROUNDS);
+    await user.save();
+
+    response.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    response.status(500).json({ message: "Unable to change password" });
   }
 }

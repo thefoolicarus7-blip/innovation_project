@@ -12,6 +12,7 @@ import {
   getMe,
   verifyEmailCode,
   resendVerificationCodeApi,
+  changePasswordApi,
 } from "../../services/api";
 import type { AuthUser, UserRole } from "../../types";
 
@@ -137,6 +138,27 @@ export const resendVerificationCode = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error instanceof Error ? error.message : "Unable to resend verification code",
+      );
+    }
+  },
+);
+
+export const changeUserPassword = createAsyncThunk(
+  "auth/changeUserPassword",
+  async (
+    { currentPassword, newPassword, confirmPassword }: any,
+    { rejectWithValue },
+  ) => {
+    try {
+      const payload = await changePasswordApi(
+        currentPassword,
+        newPassword,
+        confirmPassword,
+      );
+      return payload.message;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : "Unable to change password",
       );
     }
   },

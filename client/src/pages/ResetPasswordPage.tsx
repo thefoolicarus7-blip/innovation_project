@@ -222,11 +222,11 @@ export function ResetPasswordPage() {
                       >
                         {(
                           [
-                            ["length", "8+ characters"],
-                            ["uppercase", "Uppercase letter"],
-                            ["lowercase", "Lowercase letter"],
-                            ["digit", "Number"],
-                            ["special", "Special character"],
+                            ["length", "At least 8 characters"],
+                            ["uppercase", "One uppercase letter"],
+                            ["lowercase", "One lowercase letter"],
+                            ["digit", "One number"],
+                            ["special", "One special character"],
                           ] as const
                         ).map(([key, label]) => (
                           <li

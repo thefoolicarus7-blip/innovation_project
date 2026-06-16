@@ -18,6 +18,8 @@ import { VerifyEmailScreen } from './src/screens/VerifyEmailScreen';
 import { JobDiscoveryScreen } from './src/screens/JobDiscoveryScreen';
 import { AppliedScreen } from './src/screens/AppliedScreen';
 import { ProfileScreen } from './src/screens/ProfileScreen';
+import { ChangePasswordScreen } from './src/screens/ChangePasswordScreen';
+import { DocumentUploadScreen } from './src/screens/DocumentUploadScreen';
 
 // ─── Stack param lists ────────────────────────────────────────────────────────
 
@@ -28,6 +30,8 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
   ResetPassword: { token?: string } | undefined;
   VerifyEmail: undefined;
+  ChangePassword: undefined;
+  DocumentUpload: undefined;
 };
 
 export type MainTabParamList = {
@@ -82,6 +86,8 @@ function AuthNavigator() {
       <AuthStack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
       <AuthStack.Screen name="ResetPassword" component={ResetPasswordScreen} />
       <AuthStack.Screen name="VerifyEmail" component={VerifyEmailScreen} />
+      <AuthStack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+      <AuthStack.Screen name="DocumentUpload" component={DocumentUploadScreen} />
       {/* 'Main' is a nested stack screen that renders the tab navigator */}
       <AuthStack.Screen name={'Main' as any} component={MainTabs} />
     </AuthStack.Navigator>

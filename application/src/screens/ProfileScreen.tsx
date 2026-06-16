@@ -137,7 +137,10 @@ export const ProfileScreen = ({ navigation }: any) => {
             <Icon name="chevron-right" size={24} color={Colors.outline} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('ChangePassword')}
+          >
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                 <Icon name="shield-check-outline" size={24} color="#F57C00" />

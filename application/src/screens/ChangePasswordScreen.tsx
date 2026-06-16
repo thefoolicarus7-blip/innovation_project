@@ -42,20 +42,22 @@ function getPasswordStrength(password: string): {
   return { level, color: colors[level], label: labels[level], checks };
 }
 
-export const ResetPasswordScreen = ({ navigation, route }: any) => {
-  // Token may be pre-filled when navigating from ForgotPasswordScreen (dev mode)
-  const [token, setToken] = useState<string>(route?.params?.token ?? '');
+export const ChangePasswordScreen = ({ navigation }: any) => {
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+  
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const [loading, setLoading] = useState(false);
 
-  const { resetPassword } = useAuth();
+  const { changePassword } = useAuth();
   const strength = getPasswordStrength(newPassword);
 
-  const handleReset = async () => {
-    if (!token.trim() || !newPassword || !confirmPassword) {
+  const handleUpdate = async () => {
+    if (!currentPassword || !newPassword || !confirmPassword) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -72,15 +74,14 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
 
     setLoading(true);
     try {
-      const data = await resetPassword(token.trim(), newPassword, confirmPassword);
-      Alert.alert('Success', data.message ?? 'Password reset successfully!', [
-        { text: 'Log In', onPress: () => navigation.navigate('Login') },
+      await changePassword(currentPassword, newPassword, confirmPassword);
+      Alert.alert('Success', 'Password changed successfully!', [
+        { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error: any) {
-      Alert.alert(
-        'Reset Failed',
-        error.response?.data?.message || error.message || 'Invalid or expired reset token',
-      );
+      const msg =
+        error.response?.data?.message || error.message || 'Incorrect current password or verification error';
+      Alert.alert('Update Failed', msg);
     } finally {
       setLoading(false);
     }
@@ -100,38 +101,49 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
       style={{ flex: 1, backgroundColor: Colors.primary }}
     >
       <View style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
               <Icon name="arrow-left" size={24} color={Colors.primary} />
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Reset Password</Text>
+            <Text style={styles.headerTitle}>Change Password</Text>
           </View>
 
           <View style={styles.titleSection}>
-            <Text style={styles.mainTitle}>Create new password</Text>
+            <Text style={styles.mainTitle}>Secure Your Profile</Text>
             <Text style={styles.subtitle}>
-              Paste your reset token and choose a strong new password.
+              Change your password below to ensure your account security.
             </Text>
           </View>
 
           <View style={styles.formSection}>
-            {/* Reset token field */}
+            {/* Current Password */}
             <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Reset Token</Text>
-              <TextInput
-                style={[styles.inputField, styles.monoInput]}
-                placeholder="Paste your reset token"
-                placeholderTextColor={Colors.outline}
-                value={token}
-                onChangeText={setToken}
-                autoCapitalize="none"
-                autoCorrect={false}
-              />
+              <Text style={styles.inputLabel}>Current Password</Text>
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.inputField, styles.passwordInput]}
+                  placeholder="••••••••"
+                  placeholderTextColor={Colors.outline}
+                  value={currentPassword}
+                  onChangeText={setCurrentPassword}
+                  secureTextEntry={!showCurrentPassword}
+                />
+                <TouchableOpacity
+                  style={styles.eyeButton}
+                  onPress={() => setShowCurrentPassword((v) => !v)}
+                >
+                  <Icon
+                    name={showCurrentPassword ? 'eye-off' : 'eye'}
+                    size={20}
+                    color={Colors.outline}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
-            {/* New password field */}
+            {/* New Password */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>New Password</Text>
               <View style={styles.passwordRow}>
@@ -141,14 +153,14 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
                   placeholderTextColor={Colors.outline}
                   value={newPassword}
                   onChangeText={setNewPassword}
-                  secureTextEntry={!showPassword}
+                  secureTextEntry={!showNewPassword}
                 />
                 <TouchableOpacity
                   style={styles.eyeButton}
-                  onPress={() => setShowPassword((v) => !v)}
+                  onPress={() => setShowNewPassword((v) => !v)}
                 >
                   <Icon
-                    name={showPassword ? 'eye-off' : 'eye'}
+                    name={showNewPassword ? 'eye-off' : 'eye'}
                     size={20}
                     color={Colors.outline}
                   />
@@ -200,7 +212,7 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
               )}
             </View>
 
-            {/* Confirm password field */}
+            {/* Confirm Password */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Confirm New Password</Text>
               <View style={styles.passwordRow}>
@@ -237,27 +249,15 @@ export const ResetPasswordScreen = ({ navigation, route }: any) => {
 
           <TouchableOpacity
             style={styles.submitButton}
-            onPress={handleReset}
+            onPress={handleUpdate}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color="#FFF" />
             ) : (
-              <Text style={styles.submitButtonText}>Reset Password</Text>
+              <Text style={styles.submitButtonText}>Update Password</Text>
             )}
           </TouchableOpacity>
-
-          <View style={styles.footerSection}>
-            <Text style={styles.footerText}>
-              Need a new token?{' '}
-              <Text
-                style={styles.footerLink}
-                onPress={() => navigation.navigate('ForgotPassword')}
-              >
-                Request again
-              </Text>
-            </Text>
-          </View>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -322,10 +322,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     fontSize: 15,
     color: Colors.on_surface,
-  },
-  monoInput: {
-    fontFamily: 'monospace',
-    fontSize: 13,
   },
   inputError: {
     borderWidth: 1,
@@ -396,17 +392,6 @@ const styles = StyleSheet.create({
   submitButtonText: {
     fontSize: 16,
     color: '#FFF',
-    fontWeight: 'bold',
-  },
-  footerSection: {
-    alignItems: 'center',
-  },
-  footerText: {
-    fontSize: 14,
-    color: Colors.on_surface_variant,
-  },
-  footerLink: {
-    color: Colors.primary,
     fontWeight: 'bold',
   },
 });
