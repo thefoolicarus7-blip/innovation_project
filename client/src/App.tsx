@@ -12,6 +12,8 @@ import { JobsPage } from "./pages/JobsPage";
 import { CompanyLoginPage } from "./pages/LoginPage";
 import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
+import { ResetPasswordPage } from "./pages/ResetPasswordPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { UserLayout } from "./layouts/UserLayout";
 import { UserDashboardPage } from "./pages/UserDashboardPage";
@@ -39,6 +41,8 @@ export default function App() {
       <Route path="/company/login" element={<CompanyLoginPage />} />
       <Route path="/admin/login" element={<AdminLoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/forbidden" element={<ForbiddenPage />} />
 
       <Route path="/user/login" element={<UserLoginPage />} />

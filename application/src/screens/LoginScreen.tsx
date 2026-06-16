@@ -97,6 +97,13 @@ export const LoginScreen = ({ navigation }: any) => {
                 secureTextEntry
               />
             </View>
+
+            <TouchableOpacity
+              style={styles.forgotPasswordLink}
+              onPress={() => navigation.navigate('ForgotPassword')}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity
@@ -198,10 +205,19 @@ const styles = StyleSheet.create({
     color: Colors.primary,
     fontWeight: '700',
   },
+  forgotPasswordLink: {
+    alignSelf: 'flex-end',
+    marginTop: 8,
+  },
+  forgotPasswordText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
   logoSection: {
     alignItems: 'center',
     marginBottom: 40,
-  },
+  }
   largeIconContainer: {
     width: 64,
     height: 64,

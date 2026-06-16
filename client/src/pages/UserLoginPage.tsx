@@ -85,6 +85,12 @@ export function UserLoginPage() {
                 />
               </div>
 
+              <div style={{ textAlign: "right", marginTop: 8, marginBottom: 16 }}>
+                <Link to="/forgot-password" style={{ color: "var(--primary)", fontWeight: 600 }}>
+                  Forgot password?
+                </Link>
+              </div>
+
               {error && (
                 <div style={{ color: "var(--danger)", fontSize: "0.85rem" }}>
                   {error}
@@ -110,7 +116,7 @@ export function UserLoginPage() {
                 Sign up
               </Link>
             </div>
-            
+
             <div
               style={{
                 textAlign: "center",
