@@ -272,41 +272,41 @@ export async function adminVerifyUser(userId: string) {
   return payload;
 }
 
-export async function verifyEmailApi(
-  code: string,
-): Promise<{ message: string }> {
-  return apiRequest<{ message: string }>("/user/verify-email", {
-    method: "POST",
-    body: JSON.stringify({ code }),
-  });
+export type CvData = {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  yearsOfExperience: number;
+  skills: string[];
+  education: string;
+  summary: string;
+  resumeUrl?: string;
+};
+
+export async function getMyCV(): Promise<CvData | null> {
+  const payload = await apiRequest<{ cv: CvData | null }>("/user/cv");
+  return payload.cv;
 }
 
-export async function resendVerificationApi(): Promise<{ message: string }> {
-  return apiRequest<{ message: string }>("/user/resend-verification", {
+export async function saveCV(data: Omit<CvData, "id" | "resumeUrl">): Promise<CvData> {
+  const payload = await apiRequest<{ cv: CvData }>("/user/cv", {
     method: "POST",
+    body: JSON.stringify(data),
   });
+  return payload.cv;
 }
 
-export async function forgotPasswordApi(
-  email: string,
-): Promise<{ message: string; resetToken?: string }> {
-  return apiRequest<{ message: string; resetToken?: string }>(
-    "/user/forgot-password",
-    {
-      method: "POST",
-      body: JSON.stringify({ email }),
-    },
-  );
-}
-
-export async function resetPasswordApi(
-  token: string,
-  newPassword: string,
-  confirmPassword: string,
-): Promise<{ message: string }> {
-  return apiRequest<{ message: string }>("/user/reset-password", {
+export async function generateCVSummary(data: {
+  fullName: string;
+  yearsOfExperience: number;
+  education: string;
+  skills: string[];
+}): Promise<string> {
+  const payload = await apiRequest<{ summary: string }>("/user/cv/generate-summary", {
     method: "POST",
-    body: JSON.stringify({ token, newPassword, confirmPassword }),
+    body: JSON.stringify(data),
   });
+  return payload.summary;
 }
 

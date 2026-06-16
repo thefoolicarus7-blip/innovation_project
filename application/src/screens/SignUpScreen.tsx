@@ -33,7 +33,6 @@ export const SignUpScreen = ({ navigation }: any) => {
     setLoading(true);
     try {
       await register({ firstName, lastName, email, password });
-      navigation.navigate('VerifyEmail');
     } catch (error: any) {
       Alert.alert('Registration Failed', error.response?.data?.message || 'Something went wrong');
     } finally {

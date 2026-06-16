@@ -1,0 +1,19 @@
+[
+  {
+    "_id": "bb5e10bbf469787f727137fc",
+    "id": "f2f4d961dfa0c8d3b333e3c1",
+    "fullName": "Alex Builder",
+    "email": "alex.builder@swipe2work.test",
+    "phone": "+27 82 555 1234",
+    "yearsOfExperience": 3,
+    "skills": [
+      "React",
+      "TypeScript",
+      "Node.js",
+      "Express",
+      "MongoDB"
+    ],
+    "education": "BSc Computer Science, University of Cape Town",
+    "summary": "Results-driven software engineer with 3 years of experience building scalable web applications using React, TypeScript, and Node.js. Passionate about clean code and delivering exceptional user experiences."
+  }
+]

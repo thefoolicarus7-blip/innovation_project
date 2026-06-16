@@ -16,6 +16,7 @@ import { NotFoundPage } from "./pages/NotFoundPage";
 import { UserLayout } from "./layouts/UserLayout";
 import { UserDashboardPage } from "./pages/UserDashboardPage";
 import { UserApplicationsPage } from "./pages/UserApplicationsPage";
+import { CVBuilderPage } from "./pages/CVBuilderPage";
 import { UserLoginPage } from "./pages/UserLoginPage";
 import { UserRegisterPage } from "./pages/UserRegisterPage";
 import { useAppDispatch } from "./store/hooks";
@@ -24,9 +25,6 @@ import { AdminLayout } from "./layouts/AdminLayout";
 import { AdminUsersPage } from "./pages/AdminUsersPage";
 import { AdminCompaniesPage } from "./pages/AdminCompaniesPage";
 import { checkAuth } from "./store/slices/authSlice";
-import { ForgotPasswordPage } from "./pages/ForgotPasswordPage";
-import { ResetPasswordPage } from "./pages/ResetPasswordPage";
-import { VerifyEmailPage } from "./pages/VerifyEmailPage";
 
 export default function App() {
   const dispatch = useAppDispatch();
@@ -45,11 +43,6 @@ export default function App() {
 
       <Route path="/user/login" element={<UserLoginPage />} />
       <Route path="/user/register" element={<UserRegisterPage />} />
-
-      {/* Password reset + email verification flows — public/semi-public */}
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/verify-email" element={<VerifyEmailPage />} />
 
       <Route element={<ProtectedRoute allowedRoles={["company"]} />}>
         <Route path="/portal" element={<PortalLayout />}>
@@ -71,6 +64,7 @@ export default function App() {
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<UserDashboardPage />} />
           <Route path="applications" element={<UserApplicationsPage />} />
+          <Route path="cv-builder" element={<CVBuilderPage />} />
           <Route path="interview-prep" element={<InterviewPrepPage />} />
         </Route>
       </Route>

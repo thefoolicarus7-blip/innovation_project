@@ -47,39 +47,6 @@ export const authService = {
       await AsyncStorage.removeItem('token');
     }
   },
-  /**
-   * Request a password reset token for the given email.
-   * In development the server returns { resetToken } in the response body.
-   */
-  forgotPassword: async (email: string): Promise<{ message: string; resetToken?: string }> => {
-    const response = await api.post('/user/forgot-password', { email });
-    return response.data;
-  },
-  /**
-   * Verify the raw reset token and set a new password.
-   */
-  resetPassword: async (
-    token: string,
-    newPassword: string,
-    confirmPassword: string,
-  ): Promise<{ message: string }> => {
-    const response = await api.post('/user/reset-password', {
-      token,
-      newPassword,
-      confirmPassword,
-    });
-    return response.data;
-  },
-
-  verifyEmail: async (code: string): Promise<{ message: string }> => {
-    const response = await api.post('/user/verify-email', { code });
-    return response.data;
-  },
-
-  resendVerification: async (): Promise<{ message: string }> => {
-    const response = await api.post('/user/resend-verification');
-    return response.data;
-  },
 };
 
 export const mediaService = {

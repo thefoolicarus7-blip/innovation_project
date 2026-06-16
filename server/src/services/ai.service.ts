@@ -1,6 +1,41 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import axios from "axios";
 
+type SummaryInput = {
+  fullName: string;
+  yearsOfExperience: number;
+  education: string;
+  skills: string[];
+};
+
+export async function generateCvSummary(input: SummaryInput): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY || "";
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured on the server.");
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const prompt = `
+Write a professional CV summary paragraph for a job seeker with the following details:
+- Name: ${input.fullName}
+- Years of experience: ${input.yearsOfExperience}
+- Education: ${input.education}
+- Skills: ${input.skills.join(", ")}
+
+Rules:
+- Write exactly 2-3 sentences.
+- Write in first person (e.g. "I am..." or "Results-driven professional...").
+- Sound professional, confident, and specific to their skills.
+- Do NOT use bullet points, markdown, asterisks, or headers.
+- Return ONLY the summary paragraph text, nothing else.
+`;
+
+  const result = await model.generateContent(prompt);
+  return result.response.text().trim();
+}
+
 export async function extractSkillsFromCV(cvUrl: string): Promise<string[]> {
   const apiKey = process.env.GEMINI_API_KEY || "";
   if (!apiKey) {

@@ -96,15 +96,6 @@ export function CompanyLoginPage() {
               Sign In to Portal
             </button>
 
-            <div style={{ textAlign: "right", marginTop: "8px" }}>
-              <Link
-                to="/forgot-password"
-                style={{ fontSize: "0.85rem", color: "var(--muted)", textDecoration: "underline" }}
-              >
-                Forgot password?
-              </Link>
-            </div>
-
             <p
               style={{
                 fontSize: "0.85rem",

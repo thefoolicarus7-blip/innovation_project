@@ -7,6 +7,7 @@ import { loadUserJobs } from "../store/slices/userSlice";
 const navItems = [
   { to: "/user/dashboard", label: "Dashboard" },
   { to: "/user/applications", label: "My Applications" },
+  { to: "/user/cv-builder", label: "Build My CV" },
   { to: "/user/interview-prep", label: "AI Interview Prep" },
 ];
 

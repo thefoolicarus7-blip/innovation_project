@@ -1,12 +1,14 @@
 import {
   createAsyncThunk,
   createSlice,
-  type PayloadAction,
 } from "@reduxjs/toolkit";
 import {
   getUserJobs,
   applyToJob,
   getUserApplications,
+  getMyCV,
+  saveCV,
+  type CvData,
 } from "../../services/api";
 import type { Job, UserApplication, UserDailyStats } from "../../types";
 
@@ -16,6 +18,9 @@ type UserState = {
   dailyStats: UserDailyStats | null;
   jobsLoading: boolean;
   applicationsLoading: boolean;
+  cv: CvData | null;
+  cvLoading: boolean;
+  cvSaving: boolean;
   error: string | null;
 };
 
@@ -25,6 +30,9 @@ const initialState: UserState = {
   dailyStats: null,
   jobsLoading: false,
   applicationsLoading: false,
+  cv: null,
+  cvLoading: false,
+  cvSaving: false,
   error: null,
 };
 
@@ -52,6 +60,23 @@ export const loadUserApplications = createAsyncThunk(
   async (tab?: "matches" | "let_it_go" | "all") => {
     const payload = await getUserApplications(tab);
     return payload.items;
+  },
+);
+
+export const loadMyCv = createAsyncThunk("user/loadMyCv", async () => {
+  return getMyCV();
+});
+
+export const saveMyCvThunk = createAsyncThunk(
+  "user/saveMyCv",
+  async (data: Omit<CvData, "id" | "resumeUrl">, { rejectWithValue }) => {
+    try {
+      return await saveCV(data);
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : "Unable to save CV",
+      );
+    }
   },
 );
 
@@ -97,9 +122,29 @@ const userSlice = createSlice({
         state.applicationsLoading = false;
         state.applications = action.payload;
       })
-      .addCase(loadUserApplications.rejected, (state, action) => {
+      .addCase(loadUserApplications.rejected, (state) => {
         state.applicationsLoading = false;
         state.error = "Failed to load applications";
+      })
+      .addCase(loadMyCv.pending, (state) => {
+        state.cvLoading = true;
+      })
+      .addCase(loadMyCv.fulfilled, (state, action) => {
+        state.cvLoading = false;
+        state.cv = action.payload;
+      })
+      .addCase(loadMyCv.rejected, (state) => {
+        state.cvLoading = false;
+      })
+      .addCase(saveMyCvThunk.pending, (state) => {
+        state.cvSaving = true;
+      })
+      .addCase(saveMyCvThunk.fulfilled, (state, action) => {
+        state.cvSaving = false;
+        state.cv = action.payload;
+      })
+      .addCase(saveMyCvThunk.rejected, (state) => {
+        state.cvSaving = false;
       });
   },
 });

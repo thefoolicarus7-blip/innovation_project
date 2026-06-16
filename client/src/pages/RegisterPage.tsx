@@ -6,21 +6,6 @@ import {
 } from "../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 
-function getPasswordStrength(password: string) {
-  const checks = {
-    length: password.length >= 8,
-    uppercase: /[A-Z]/.test(password),
-    lowercase: /[a-z]/.test(password),
-    digit: /[0-9]/.test(password),
-    special: /[^A-Za-z0-9]/.test(password),
-  };
-  const passed = Object.values(checks).filter(Boolean).length;
-  const colors = ["#e5e7eb", "#ef4444", "#f97316", "#eab308", "#22c55e"];
-  const labels = ["", "Very Weak", "Weak", "Fair", "Strong"];
-  const level = Math.min(passed, 4);
-  return { level, color: colors[level], label: labels[level], checks };
-}
-
 export function RegisterPage() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: any) => state.auth.user);
@@ -30,10 +15,8 @@ export function RegisterPage() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const strength = getPasswordStrength(password);
 
   if (user) {
-    if (user.isVerified !== "true") return <Navigate to="/verify-email" replace />;
     return <Navigate to="/portal/jobs" replace />;
   }
 
@@ -138,36 +121,6 @@ export function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              {password.length > 0 && (
-                <div style={{ marginTop: "8px" }}>
-                  <div style={{ display: "flex", gap: "4px", marginBottom: "4px" }}>
-                    {[1, 2, 3, 4].map((seg) => (
-                      <div
-                        key={seg}
-                        style={{
-                          flex: 1,
-                          height: "4px",
-                          borderRadius: "2px",
-                          background: strength.level >= seg ? strength.color : "#e5e7eb",
-                          transition: "background 0.2s",
-                        }}
-                      />
-                    ))}
-                  </div>
-                  {strength.label && (
-                    <span style={{ fontSize: "0.75rem", color: strength.color, fontWeight: 600 }}>
-                      {strength.label}
-                    </span>
-                  )}
-                  <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", fontSize: "0.75rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px" }}>
-                    {([["length","8+ chars"],["uppercase","Uppercase"],["lowercase","Lowercase"],["digit","Number"],["special","Special char"]] as const).map(([k, lbl]) => (
-                      <li key={k} style={{ color: strength.checks[k] ? "#16a34a" : "#9ca3af" }}>
-                        {strength.checks[k] ? "✓" : "○"} {lbl}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
 
             {error ? <p className="error-text">{error}</p> : null}

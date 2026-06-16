@@ -23,10 +23,6 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
   refreshProfile: () => Promise<void>;
-  forgotPassword: (email: string) => Promise<{ message: string; resetToken?: string }>;
-  resetPassword: (token: string, newPassword: string, confirmPassword: string) => Promise<{ message: string }>;
-  verifyEmail: (code: string) => Promise<{ message: string }>;
-  resendVerification: () => Promise<{ message: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -101,31 +97,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const forgotPassword = async (email: string) => {
-    return authService.forgotPassword(email);
-  };
-
-  const resetPassword = async (
-    token: string,
-    newPassword: string,
-    confirmPassword: string,
-  ) => {
-    return authService.resetPassword(token, newPassword, confirmPassword);
-  };
-
-  const verifyEmail = async (code: string) => {
-    const result = await authService.verifyEmail(code);
-    // Sync local user state so isVerified reflects the change immediately
-    if (user) {
-      setUser({ ...user, isVerified: 'true' });
-    }
-    return result;
-  };
-
-  const resendVerification = async () => {
-    return authService.resendVerification();
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -136,10 +107,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         updateUser,
         refreshProfile,
-        forgotPassword,
-        resetPassword,
-        verifyEmail,
-        resendVerification,
       }}
     >
       {children}

@@ -110,14 +110,6 @@ export const LoginScreen = ({ navigation }: any) => {
               <Text style={styles.submitButtonText}>Log In</Text>
             )}
           </TouchableOpacity>
-
-          {/* Forgot password link */}
-          <TouchableOpacity
-            style={styles.forgotPasswordButton}
-            onPress={() => navigation.navigate('ForgotPassword')}
-          >
-            <Text style={styles.forgotPasswordText}>Forgot your password?</Text>
-          </TouchableOpacity>
           {/* ... (Social and Footer) */}
 
           {/* Social Logins */}
@@ -334,15 +326,5 @@ const styles = StyleSheet.create({
   footerLinkBold: {
     color: Colors.primary,
     fontWeight: 'bold',
-  },
-  forgotPasswordButton: {
-    alignItems: 'center',
-    marginBottom: 24,
-    marginTop: -16,
-  },
-  forgotPasswordText: {
-    fontSize: 14,
-    color: Colors.primary,
-    textDecorationLine: 'underline',
   },
 });

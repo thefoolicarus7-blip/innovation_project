@@ -10,8 +10,6 @@ import {
   loginNormalUser,
   registerNormalUser,
   getMe,
-  verifyEmailApi,
-  resendVerificationApi,
 } from "../../services/api";
 import type { AuthUser, UserRole } from "../../types";
 
@@ -114,32 +112,6 @@ export const registerNormalUserAccount = createAsyncThunk(
   },
 );
 
-export const verifyEmailAccount = createAsyncThunk(
-  "auth/verifyEmail",
-  async (code: string, { rejectWithValue }) => {
-    try {
-      await verifyEmailApi(code);
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Verification failed";
-      return rejectWithValue(message);
-    }
-  },
-);
-
-export const resendVerificationCode = createAsyncThunk(
-  "auth/resendVerification",
-  async (_, { rejectWithValue }) => {
-    try {
-      await resendVerificationApi();
-      return true;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to resend code";
-      return rejectWithValue(message);
-    }
-  },
-);
-
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
@@ -158,12 +130,6 @@ const authSlice = createSlice({
   reducers: {
     clearAuthError(state) {
       state.error = null;
-    },
-    setUserVerified(state) {
-      if (state.user) {
-        state.user = { ...state.user, isVerified: "true" };
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(state.user));
-      }
     },
     clearUser(state) {
       state.user = null;
@@ -258,5 +224,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearAuthError, clearUser, setUserVerified } = authSlice.actions;
+export const { clearAuthError, clearUser } = authSlice.actions;
 export default authSlice.reducer;

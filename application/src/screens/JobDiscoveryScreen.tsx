@@ -89,25 +89,25 @@ const JobCard = memo(
 
     const animatedCardStyle = isFirst
       ? {
-        transform: [
-          { translateX: position.x },
-          { translateY: position.y },
-          { rotate },
-          { scale },
-        ],
-        opacity,
-        zIndex: 999,
-        elevation: 20,
-      }
+          transform: [
+            { translateX: position.x },
+            { translateY: position.y },
+            { rotate },
+            { scale },
+          ],
+          opacity,
+          zIndex: 999,
+          elevation: 20,
+        }
       : {
-        top: (index - currentIndex) * 8,
-        transform: [
-          {
-            scale: 0.95 - (index - currentIndex) * 0.02,
-          },
-        ],
-        zIndex: 1,
-      };
+          top: (index - currentIndex) * 8,
+          transform: [
+            {
+              scale: 0.95 - (index - currentIndex) * 0.02,
+            },
+          ],
+          zIndex: 1,
+        };
 
     return (
       <Animated.View
@@ -254,7 +254,7 @@ export const JobDiscoveryScreen = ({ navigation }: any) => {
       }
 
       const currentJob = currentJobs[index];
-
+      
       // Block unverified users from applying (Right or Up swipe)
       if ((direction === 'right' || direction === 'up') && user?.isVerified !== 'true') {
         Alert.alert(

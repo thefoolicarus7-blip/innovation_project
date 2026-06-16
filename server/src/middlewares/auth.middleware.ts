@@ -18,14 +18,7 @@ export function authenticate(
   response: Response,
   next: NextFunction,
 ) {
-  // Web client sends token via HttpOnly cookie.
-  // Mobile app sends token via Authorization: Bearer <token> header.
-  const cookieToken: string | undefined = request.cookies?.token;
-  const authHeader = request.headers.authorization;
-  const bearerToken =
-    authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : undefined;
-
-  const token = cookieToken ?? bearerToken;
+  const token = request.cookies.token;
 
   if (!token) {
     response.status(401).json({ message: "Authentication required" });
@@ -63,3 +56,4 @@ export function isAdmin(
   }
   next();
 }
+
