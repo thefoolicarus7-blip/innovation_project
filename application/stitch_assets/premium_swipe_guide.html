@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Swipe Guide | SWIPE2WORK</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-inter { font-family: 'Inter', sans-serif; }
+        .tap-highlight-none { -webkit-tap-highlight-color: transparent; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f1f0fa",
+                        "outline": "#757684",
+                        "surface-tint": "#3755c3",
+                        "primary-container": "#1e40af",
+                        "primary": "#00288e",
+                        "surface-variant": "#e3e1eb",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-fixed": "#dde1ff",
+                        "secondary": "#006c4a",
+                        "surface-bright": "#fbf8ff",
+                        "on-surface": "#1a1b22",
+                        "on-secondary-fixed": "#002114",
+                        "surface-container-highest": "#e3e1eb",
+                        "secondary-container": "#82f5c1",
+                        "on-secondary-container": "#00714e",
+                        "tertiary": "#4c2e00",
+                        "surface": "#fbf8ff",
+                        "background": "#fbf8ff",
+                        "on-secondary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-low": "#f4f2fc",
+                        "outline-variant": "#c4c5d5"
+                    },
+                    "borderRadius": {
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-container selection:text-white">
+<!-- Top Navigation Anchor (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 dark:bg-surface-dark/80 backdrop-blur-xl flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Professional studio headshot of a young professional woman with a friendly smile, soft natural lighting, blurred office background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpG-23EQSCq04OKx9ydGzqQqVDLBdQ7wqtmX_763Tm-h5JSOlcKFxP6_bCogOGA8ca26fm07EMEpGcJRH0JwBIV4axxAtVGfwQIJ8YQzhWR8sGss2kHL9pxAz9Q_fTRCdZmjaBc3dKkPtBHlCgWYGiBT3gtsTnHnqu9K24Rr_-7yh1INAazPZUB6q3P0LLs3vp20A_mGYKUkZfPOCmJNtyHcYVWmCQ9NIdVz2K9G-bUh8vyn0PxLJA58oIlK7jF6fw-axzIuWLUj7O"/>
+</div>
+<span class="text-xl font-black tracking-tighter text-blue-900 dark:text-blue-100 font-headline">SWIPE2WORK</span>
+</div>
+<button class="material-symbols-outlined text-blue-900 dark:text-blue-300 hover:opacity-80 transition-opacity scale-95 active:transition-transform" data-icon="tune">tune</button>
+</header>
+<main class="min-h-screen pt-24 pb-32 px-6 flex flex-col items-center">
+<!-- Editorial Header -->
+<div class="w-full max-w-md mb-12 ml-4">
+<p class="text-tertiary font-headline font-bold text-sm tracking-widest uppercase mb-2">The Kinetic Guide</p>
+<h1 class="text-4xl md:text-5xl font-extrabold font-headline text-primary tracking-tight leading-none">Master the <br/>Motion.</h1>
+<p class="mt-4 text-on-surface-variant font-medium max-w-[280px]">Curating your future is as simple as a single gesture.</p>
+</div>
+<!-- Gesture Showcase: Bento Grid Style -->
+<div class="w-full max-w-md space-y-6">
+<!-- Left Swipe: NOPE -->
+<div class="group relative bg-surface-container-low rounded-2xl p-8 overflow-hidden transition-all hover:bg-surface-container-high">
+<div class="relative z-10 flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error text-3xl" data-icon="keyboard_double_arrow_left">keyboard_double_arrow_left</span>
+<h2 class="text-2xl font-bold font-headline text-on-surface">Swipe Left</h2>
+</div>
+<p class="text-on-surface-variant font-medium leading-relaxed">Not the right fit? Swipe left to skip and refine your discovery feed.</p>
+<div class="mt-4">
+<span class="px-4 py-1.5 border-2 border-error text-error font-black rounded-lg text-lg rotate-[-12deg] inline-block uppercase tracking-tighter">NOPE</span>
+</div>
+</div>
+<!-- 3D Illustration Placeholder / Abstract Representation -->
+<div class="absolute -right-12 -bottom-12 w-48 h-64 bg-white rounded-2xl shadow-2xl rotate-12 transform group-hover:rotate-6 transition-transform duration-500 flex flex-col p-4 opacity-40">
+<div class="w-full h-32 bg-surface-container-highest rounded-xl mb-3"></div>
+<div class="w-3/4 h-3 bg-surface-container-highest rounded-full mb-2"></div>
+<div class="w-1/2 h-3 bg-surface-container-highest rounded-full"></div>
+</div>
+</div>
+<!-- Right Swipe: APPLY -->
+<div class="group relative bg-secondary-container/30 rounded-2xl p-8 overflow-hidden transition-all hover:bg-secondary-container/50">
+<div class="relative z-10 flex flex-col gap-4">
+<div class="flex items-center gap-3">
+<h2 class="text-2xl font-bold font-headline text-on-secondary-container">Swipe Right</h2>
+<span class="material-symbols-outlined text-secondary text-3xl" data-icon="keyboard_double_arrow_right">keyboard_double_arrow_right</span>
+</div>
+<p class="text-on-secondary-container font-medium leading-relaxed">Found your dream role? Swipe right to instantly submit your application.</p>
+<div class="mt-4">
+<span class="px-4 py-1.5 border-2 border-secondary text-secondary font-black rounded-lg text-lg rotate-[12deg] inline-block uppercase tracking-tighter">APPLY</span>
+</div>
+</div>
+<!-- 3D Illustration Placeholder / Abstract Representation -->
+<div class="absolute -left-12 -bottom-12 w-48 h-64 bg-white rounded-2xl shadow-2xl -rotate-12 transform group-hover:-rotate-6 transition-transform duration-500 flex flex-col p-4 opacity-60">
+<div class="w-full h-32 bg-primary-fixed-dim rounded-xl mb-3"></div>
+<div class="w-3/4 h-3 bg-primary-fixed-dim rounded-full mb-2"></div>
+<div class="w-1/2 h-3 bg-primary-fixed-dim rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Focused Call to Action -->
+<div class="mt-12 w-full max-w-md">
+<button class="w-full py-5 px-8 rounded-full bg-gradient-to-br from-primary to-primary-container text-white font-headline font-bold text-lg shadow-[0_8px_24px_rgba(0,40,142,0.25)] active:scale-95 transition-transform">
+                Start Swiping
+            </button>
+<p class="text-center mt-6 text-on-surface-variant text-sm font-medium opacity-60">
+                By starting, you agree to our <span class="underline decoration-primary/30">Terms of Discovery</span>
+</p>
+</div>
+</main>
+<!-- Bottom Navigation Suppressed for Focused Task (Swipe Guide) as per "The Destination Rule" -->
+<!-- Visual Accent Element -->
+<div class="fixed top-0 right-0 -z-10 w-full h-full overflow-hidden pointer-events-none">
+<div class="absolute top-[-10%] right-[-10%] w-[60%] h-[60%] bg-primary-fixed/20 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[50%] h-[50%] bg-secondary-container/20 blur-[100px] rounded-full"></div>
+</div>
+</body></html>

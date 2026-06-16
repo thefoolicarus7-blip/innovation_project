@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign Up | Swipe2Work</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-fixed": "#85f8c4",
+                    "secondary": "#006c4a",
+                    "surface-variant": "#e3e1eb",
+                    "background": "#fbf8ff",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "inverse-primary": "#b8c4ff",
+                    "on-primary-fixed-variant": "#173bab",
+                    "error-container": "#ffdad6",
+                    "on-secondary-container": "#00714e",
+                    "surface-container-highest": "#e3e1eb",
+                    "primary": "#00288e",
+                    "on-surface": "#1a1b22",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "primary-fixed-dim": "#b8c4ff",
+                    "on-primary-container": "#a8b8ff",
+                    "surface": "#fbf8ff",
+                    "surface-container-high": "#e8e7f1",
+                    "on-surface-variant": "#444653",
+                    "primary-fixed": "#dde1ff",
+                    "outline": "#757684",
+                    "on-tertiary-container": "#ffa929",
+                    "inverse-on-surface": "#f1f0fa",
+                    "on-secondary-fixed-variant": "#005137",
+                    "tertiary-fixed": "#ffddb8",
+                    "surface-dim": "#dad9e3",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-container": "#eeedf7",
+                    "primary-container": "#1e40af",
+                    "on-tertiary-fixed": "#2a1700",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#68dba9",
+                    "tertiary-container": "#6b4200",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "on-background": "#1a1b22",
+                    "inverse-surface": "#2f3037",
+                    "on-primary-fixed": "#001453",
+                    "outline-variant": "#c4c5d5",
+                    "surface-tint": "#3755c3",
+                    "on-secondary-fixed": "#002114",
+                    "surface-container-low": "#f4f2fc",
+                    "tertiary": "#4c2e00",
+                    "secondary-container": "#82f5c1",
+                    "surface-bright": "#fbf8ff",
+                    "on-tertiary-fixed-variant": "#653e00"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Plus Jakarta Sans"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .signature-gradient {
+            background: linear-gradient(135deg, #00288e 0%, #1e40af 100%);
+        }
+        .kinetic-bg {
+            background-image: radial-gradient(at 0% 0%, rgba(0, 40, 142, 0.05) 0%, transparent 50%),
+                              radial-gradient(at 100% 100%, rgba(0, 108, 74, 0.05) 0%, transparent 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top Navigation (Brand Anchor) -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-sm">
+<div class="flex justify-between items-center px-6 h-16 w-full">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 signature-gradient rounded-xl flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">swipe</span>
+</div>
+<h1 class="font-headline font-extrabold text-xl tracking-tight text-primary">Swipe2Work</h1>
+</div>
+<a class="text-primary font-headline font-bold text-sm px-4 py-2 hover:bg-primary-fixed/30 transition-colors rounded-full" href="#">Log in</a>
+</div>
+</header>
+<main class="min-h-screen pt-16 flex flex-col md:flex-row kinetic-bg">
+<!-- Hero Illustration Section -->
+<div class="hidden md:flex flex-1 items-center justify-center p-12 lg:p-24">
+<div class="relative w-full max-w-xl">
+<div class="absolute -top-12 -left-12 w-64 h-64 bg-secondary-fixed/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-12 -right-12 w-64 h-64 bg-primary-fixed/20 rounded-full blur-3xl"></div>
+<div class="relative bg-surface-container-low p-8 rounded-[2.5rem] shadow-sm overflow-hidden border border-outline-variant/10">
+<img alt="Professional growth" class="w-full h-[400px] object-cover rounded-3xl" data-alt="Modern office worker smiling at tablet with glowing abstract digital nodes representing job connections and networking paths in soft blue light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwxJcL1MMuq575J_gBdqqO3Km_iRiKGulNdiO0xSDEArAP54D1u9ev67sVVBnMyvJu9rkRde2kKOJpTgfWm3uM5jxdqbZKfWRBbtyMlErW4bxnSrFcVf8ovUGAr_wPB5teJ1zWneNvsu528j9jwC8NKj_Eb-vZyWNxO_7fAopguYHx1B7qBUXkGESNaa4zF7d7cQ_WaCUKH_e4CNd3qkzpfarAZar3LAJ89BbMfURBK9NSwR5DjDK_GGnTKmuwAFWMIptVWWxhIwxU"/>
+<div class="mt-8 space-y-4">
+<h2 class="font-headline text-3xl font-extrabold text-primary leading-tight">Your next career move is just a <span class="text-secondary">swipe</span> away.</h2>
+<p class="text-on-surface-variant leading-relaxed">Join thousands of professionals in Nepal finding meaningful work through curated matching and effortless discovery.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Registration Form Section -->
+<div class="flex-1 flex items-center justify-center p-6 md:p-12 lg:p-24">
+<div class="w-full max-w-md space-y-8">
+<div class="md:hidden flex flex-col items-center text-center mb-10">
+<div class="w-16 h-16 signature-gradient rounded-2xl flex items-center justify-center text-white mb-4">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">swipe</span>
+</div>
+<h1 class="font-headline font-extrabold text-2xl tracking-tight text-primary">Swipe2Work</h1>
+</div>
+<div class="space-y-2">
+<h2 class="font-headline text-3xl font-bold tracking-tight text-on-surface">Create an account</h2>
+<p class="text-on-surface-variant">Start your curated career journey today.</p>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-1 gap-3">
+<button class="flex items-center justify-center gap-3 px-6 py-3 bg-surface-container-lowest border border-outline-variant/30 rounded-full text-on-surface font-medium hover:bg-surface-container-high transition-all active:scale-95 group">
+<img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDv0pXmi1ngIF71cmHv6--wktNKBJlXywL5HS64SIX_15VJBxVjZFI2VFRA9UGQ7ScKkxGk1pcErLqZoSRLVqxoxSwtOkeA9K2XIfoxNnNiB_7qNa5HEVysN8cIsbnuIuzk_L7ej8e7FnLUif7x4B1-Dp5nIZGRQVEvFgSc_CAgrfEmY_w2ZO3eZ7_l0EaZCQOJI-CmbhsefsQhN3tgyfs7La4U4_cRwJ0hPaAci0O1yivyUg6btq5wWig5ANmQvnYa8QIofN8xeI1W"/>
+<span>Continue with Google</span>
+</button>
+<button class="flex items-center justify-center gap-3 px-6 py-3 bg-surface-container-lowest border border-outline-variant/30 rounded-full text-on-surface font-medium hover:bg-surface-container-high transition-all active:scale-95 group">
+<svg class="w-5 h-5 text-[#0077b5]" fill="currentColor" viewbox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg>
+<span>Continue with LinkedIn</span>
+</button>
+</div>
+<div class="relative flex items-center py-4">
+<div class="flex-grow border-t border-outline-variant/30"></div>
+<span class="flex-shrink mx-4 text-outline font-label text-xs uppercase tracking-widest">or email</span>
+<div class="flex-grow border-t border-outline-variant/30"></div>
+</div>
+<!-- Email Form -->
+<form class="space-y-5">
+<div class="space-y-1.5">
+<label class="font-label text-sm font-semibold text-on-surface ml-1" for="full_name">Full Name</label>
+<input class="w-full px-5 py-3.5 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all outline-none" id="full_name" placeholder="John Doe" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="font-label text-sm font-semibold text-on-surface ml-1" for="email">Email Address</label>
+<input class="w-full px-5 py-3.5 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all outline-none" id="email" placeholder="name@company.com" type="email"/>
+</div>
+<div class="space-y-1.5">
+<label class="font-label text-sm font-semibold text-on-surface ml-1" for="password">Password</label>
+<input class="w-full px-5 py-3.5 bg-surface-container-high border-none rounded-xl focus:ring-2 focus:ring-primary/40 focus:bg-surface-container-lowest transition-all outline-none" id="password" placeholder="••••••••" type="password"/>
+</div>
+<button class="w-full py-4 signature-gradient text-white font-headline font-bold rounded-full shadow-lg shadow-primary/20 active:scale-95 transition-all mt-4" type="submit">
+                        Create Account
+                    </button>
+</form>
+<p class="text-center text-sm text-on-surface-variant font-medium">
+                    Already have an account? 
+                    <a class="text-primary hover:underline font-bold" href="#">Log in</a>
+</p>
+<p class="text-center text-[11px] text-outline px-8 leading-relaxed">
+                    By signing up, you agree to our <a class="underline" href="#">Terms of Service</a> and <a class="underline" href="#">Privacy Policy</a>.
+                </p>
+</div>
+</div>
+</main>
+<!-- Sub-page Footer Suppression Logic Applied -->
+<!-- Navigation shell suppressed for transactional focus -->
+</body></html>
