@@ -94,5 +94,15 @@
     "isVerified": "false",
     "role": "User",
     "_id": "99ba1ccd2590dbb036e74b12"
+  },
+  {
+    "skills": [],
+    "firstName": "Test",
+    "lastName": "User",
+    "email": "test@test.com",
+    "password": "$2b$10$5T4d8.NDQuChRdoPxLNNyuNA9somYfh.lMVe2LaoaCKtrkgsGqgfy",
+    "isVerified": "false",
+    "role": "User",
+    "_id": "17a0d7e8ca950a214aef2ccd"
   }
 ]

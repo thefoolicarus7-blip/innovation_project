@@ -87,7 +87,7 @@ export async function extractSkillsFromCV(cvUrl: string): Promise<string[]> {
     }
 
     // 3. Use Gemini to extract skills
-    const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const prompt = `
       Extract up to 7 major technical and soft skills from the following resume text. 
       Focus on core technologies (e.g., React.js, Next.js, Node.js, Python, etc.) and significant professional skills.

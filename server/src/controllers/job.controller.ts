@@ -36,14 +36,14 @@ export async function listJobs(request: AuthenticatedRequest, response: Response
       });
 
       // 2. Score jobs based on tag matching
-      const userSkillsLower = userSkills.map((s) => s.toLowerCase());
+      const userSkillsLower = userSkills.map((s: string) => s.toLowerCase());
 
       const scoredJobs = allPotentialJobs.map((job) => {
         let score = 0;
-        const jobTagsLower = job.tags.map((t) => t.toLowerCase());
+        const jobTagsLower = job.tags.map((t: string) => t.toLowerCase());
         const jobTitleLower = job.title.toLowerCase();
 
-        userSkillsLower.forEach((skill) => {
+        userSkillsLower.forEach((skill: string) => {
           // Boost score if skill matches a tag
           if (jobTagsLower.includes(skill)) {
             score += 2;
@@ -91,13 +91,13 @@ export async function listJobs(request: AuthenticatedRequest, response: Response
     // CRITICAL FIX: If we have items but they all have 0 score (due to old logic), 
     // we must filter them out now to enforce the "strict relevance" rule.
     const user = await User.findById(userId);
-    const userSkillsLower = (user?.skills || []).map(s => s.toLowerCase());
+    const userSkillsLower = (user?.skills || []).map((s: string) => s.toLowerCase());
 
     items = items.filter(job => {
-      const jobTagsLower = job.tags.map(t => t.toLowerCase());
+      const jobTagsLower = job.tags.map((t: string) => t.toLowerCase());
       const jobTitleLower = job.title.toLowerCase();
-      
-      return userSkillsLower.some(skill => 
+
+      return userSkillsLower.some((skill: string) =>
         jobTagsLower.includes(skill) || jobTitleLower.includes(skill)
       );
     });

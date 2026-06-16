@@ -11,7 +11,7 @@ export const setupInterviewSocket = (io: Server) => {
 
   const genAI = new GoogleGenerativeAI(apiKey || "");
   const model = genAI.getGenerativeModel({
-    model: "gemini-flash-latest",
+    model: "gemini-2.0-flash",
     systemInstruction:
       "You are an expert technical interviewer conducting a voice-only interview. IMPORTANT: Never use markdown, bolding, italics, or bullet points. Avoid all special characters like asterisks or hashtags. Speak in natural, plain text only, as your response will be read aloud by a text-to-speech engine. Ask one concise, technical question at a time. Briefly evaluate the user's previous answer and then ask the next question.",
   });
