@@ -1,10 +1,12 @@
 import type { Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import crypto from "node:crypto";
 import jwt from "jsonwebtoken";
 
 import User from "../models/user.model.js";
 import Candidate from "../models/candidate.model.js";
 import { generateCvSummary } from "../services/ai.service.js";
+import { sendPasswordResetEmail } from "../services/email.service.js";
 import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 
 const JWT_SECRET = process.env.JWT_SECRET ?? "dev-jwt-secret";
@@ -25,6 +27,7 @@ function signAuthToken(userId: string, email: string, role: string) {
 }
 
 const IS_PRODUCTION = process.env.NODE_ENV === "production";
+const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
 
 // sameSite "none" is required for cross-domain cookies.
 // sameSite "none" mandates secure:true (HTTPS).
@@ -194,6 +197,85 @@ export async function loginCompanyUser(request: Request, response: Response) {
     });
   } catch {
     response.status(500).json({ message: "Unable to login" });
+  }
+}
+
+export async function forgotPassword(request: Request, response: Response) {
+  const { email } = request.body as { email?: string };
+
+  if (!email) {
+    response.status(400).json({ message: "Email is required" });
+    return;
+  }
+
+  const normalizedEmail = email.toLowerCase();
+  console.debug(`[auth] forgotPassword requested for ${normalizedEmail}`);
+
+  try {
+    const user = await User.findOne({ email: normalizedEmail });
+
+    if (!user) {
+      console.debug(`[auth] forgotPassword: email not found: ${normalizedEmail}`);
+      response.status(200).json({
+        message: "If an account exists for that email, a password reset link will be sent.",
+        ...(IS_DEVELOPMENT ? { debug: "email_not_found" } : {}),
+      });
+      return;
+    }
+
+    const rawToken = crypto.randomBytes(24).toString("hex");
+    user.resetToken = rawToken;
+    user.resetTokenExpiry = Date.now() + 1000 * 60 * 60;
+    await user.save();
+
+    console.debug(`[auth] generated reset token for ${normalizedEmail}: ${rawToken}`);
+    await sendPasswordResetEmail(normalizedEmail, rawToken);
+
+    response.status(200).json({
+      message: "Password reset instructions have been sent to your email.",
+      resetToken: rawToken,
+    });
+  } catch (error) {
+    console.error("[auth] forgotPassword error:", error);
+    response.status(500).json({ message: "Unable to process password reset" });
+  }
+}
+
+export async function resetPassword(request: Request, response: Response) {
+  const { token, password, confirmPassword } = request.body as {
+    token?: string;
+    password?: string;
+    confirmPassword?: string;
+  };
+
+  if (!token || !password || !confirmPassword) {
+    response.status(400).json({
+      message: "token, password, and confirmPassword are required",
+    });
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    response.status(400).json({ message: "Passwords do not match" });
+    return;
+  }
+
+  try {
+    const user = await User.findOne({ resetToken: token });
+
+    if (!user || !user.resetTokenExpiry || user.resetTokenExpiry < Date.now()) {
+      response.status(400).json({ message: "Reset token is invalid or expired" });
+      return;
+    }
+
+    user.password = await bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
+
+    response.status(200).json({ message: "Password updated successfully" });
+  } catch {
+    response.status(500).json({ message: "Unable to reset password" });
   }
 }
 

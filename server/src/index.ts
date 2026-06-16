@@ -118,7 +118,13 @@ export async function startServer(
   try {
     await connectDB();
   } catch (error) {
-    process.exit(1);
+    console.error("[server] Failed to connect to database:", error);
+    if (process.env.NODE_ENV === "production") {
+      process.exit(1);
+    }
+    console.warn(
+      "⚠️ Running without MongoDB in development. Some routes may fail until the database is available.",
+    );
   }
 
   const server = createHttpServer();

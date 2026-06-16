@@ -11,6 +11,8 @@ import {
   logoutUser,
   registerUser,
   updateUserDocuments,
+  forgotPassword,
+  resetPassword,
 } from "../controllers/user.controller.js";
 
 const userRouter = Router();
@@ -19,6 +21,8 @@ userRouter.post("/register", registerUser);
 userRouter.post("/login", loginUser);
 userRouter.post("/logout", logoutUser);
 userRouter.post("/company-login", loginCompanyUser);
+userRouter.post("/forgot-password", forgotPassword);
+userRouter.post("/reset-password", resetPassword);
 userRouter.get("/me", authenticate, getMyProfile);
 userRouter.patch("/documents", authenticate, updateUserDocuments);
 userRouter.get("/cv", authenticate, getMyCv);

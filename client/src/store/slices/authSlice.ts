@@ -10,6 +10,8 @@ import {
   loginNormalUser,
   registerNormalUser,
   getMe,
+  verifyEmailCode,
+  resendVerificationCodeApi,
 } from "../../services/api";
 import type { AuthUser, UserRole } from "../../types";
 
@@ -112,6 +114,34 @@ export const registerNormalUserAccount = createAsyncThunk(
   },
 );
 
+export const verifyEmailAccount = createAsyncThunk(
+  "auth/verifyEmailAccount",
+  async (code: string, { rejectWithValue }) => {
+    try {
+      const payload = await verifyEmailCode(code);
+      return payload.message;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : "Unable to verify email",
+      );
+    }
+  },
+);
+
+export const resendVerificationCode = createAsyncThunk(
+  "auth/resendVerificationCode",
+  async (_, { rejectWithValue }) => {
+    try {
+      const payload = await resendVerificationCodeApi();
+      return payload.message;
+    } catch (error) {
+      return rejectWithValue(
+        error instanceof Error ? error.message : "Unable to resend verification code",
+      );
+    }
+  },
+);
+
 export const checkAuth = createAsyncThunk(
   "auth/checkAuth",
   async (_, { rejectWithValue }) => {
@@ -135,6 +165,11 @@ const authSlice = createSlice({
       state.user = null;
       state.error = null;
       localStorage.removeItem(AUTH_STORAGE_KEY);
+    },
+    setUserVerified(state) {
+      if (state.user) {
+        state.user.isVerified = "true";
+      }
     },
   },
   extraReducers(builder) {
@@ -220,9 +255,30 @@ const authSlice = createSlice({
       .addCase(registerNormalUserAccount.rejected, (state, action) => {
         state.error =
           (action.payload as string | undefined) ?? "Unable to register";
+      })
+      .addCase(verifyEmailAccount.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(verifyEmailAccount.fulfilled, (state) => {
+        state.error = null;
+      })
+      .addCase(verifyEmailAccount.rejected, (state, action) => {
+        state.error =
+          (action.payload as string | undefined) ?? "Unable to verify email";
+      })
+      .addCase(resendVerificationCode.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(resendVerificationCode.fulfilled, (state) => {
+        state.error = null;
+      })
+      .addCase(resendVerificationCode.rejected, (state, action) => {
+        state.error =
+          (action.payload as string | undefined) ??
+          "Unable to resend verification code";
       });
   },
 });
 
-export const { clearAuthError, clearUser } = authSlice.actions;
+export const { clearAuthError, clearUser, setUserVerified } = authSlice.actions;
 export default authSlice.reducer;

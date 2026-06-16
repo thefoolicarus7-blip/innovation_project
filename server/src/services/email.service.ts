@@ -1,13 +1,15 @@
-import nodemailer from "nodemailer";
+import * as nodemailer from "nodemailer";
 
 const FRONTEND_URL = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
-// Detect whether real SMTP credentials have been provided.
-const isRealEmailConfigured =
-  !!process.env.EMAIL_USER &&
-  !!process.env.EMAIL_PASS &&
-  process.env.EMAIL_USER !== "your_gmail@gmail.com" &&
-  process.env.EMAIL_PASS !== "your_16_char_app_password";
+function isRealEmailConfigured(): boolean {
+  return (
+    !!process.env.EMAIL_USER &&
+    !!process.env.EMAIL_PASS &&
+    process.env.EMAIL_USER !== "your_gmail@gmail.com" &&
+    process.env.EMAIL_PASS !== "your_16_char_app_password"
+  );
+}
 
 type TransporterState = {
   transport: nodemailer.Transporter;
@@ -21,40 +23,57 @@ let transporterState: TransporterState | null = null;
 async function getTransporterState(): Promise<TransporterState> {
   if (transporterState) return transporterState;
 
-  if (isRealEmailConfigured) {
+  if (isRealEmailConfigured()) {
+    const transport = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST ?? "smtp.gmail.com",
+      port: Number(process.env.EMAIL_PORT ?? 587),
+      secure: Number(process.env.EMAIL_PORT) === 465,
+      auth: {
+        user: process.env.EMAIL_USER!,
+        pass: process.env.EMAIL_PASS!,
+      },
+    });
+
+    try {
+      await transport.verify();
+      console.log(
+        `[email] SMTP ready — ${process.env.EMAIL_HOST ?? "smtp.gmail.com"} as ${process.env.EMAIL_USER}`,
+      );
+    } catch (error) {
+      console.error(
+        "[email] SMTP verification failed, falling back to Ethereal:",
+        error,
+      );
+      return createEtherealTransporter();
+    }
+
     transporterState = {
-      transport: nodemailer.createTransport({
-        host: process.env.EMAIL_HOST ?? "smtp.gmail.com",
-        port: Number(process.env.EMAIL_PORT ?? 587),
-        secure: Number(process.env.EMAIL_PORT) === 465,
-        auth: {
-          user: process.env.EMAIL_USER!,
-          pass: process.env.EMAIL_PASS!,
-        },
-      }),
+      transport,
       fromAddress: process.env.EMAIL_USER!,
       isTest: false,
     };
-    console.log(`[email] SMTP ready — ${process.env.EMAIL_HOST ?? "smtp.gmail.com"}`);
   } else {
-    // No real credentials — auto-create a free Ethereal test account.
-    // Ethereal catches the email without delivering it; a preview URL is
-    // printed to the server console so you can inspect the email in a browser.
-    const testAccount = await nodemailer.createTestAccount();
-    transporterState = {
-      transport: nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        auth: { user: testAccount.user, pass: testAccount.pass },
-      }),
-      fromAddress: testAccount.user,
-      isTest: true,
-    };
-    console.log(
-      `[email] No SMTP configured — using Ethereal test account: ${testAccount.user}\n` +
-      `[email] Emails are NOT delivered to inboxes. Open the preview URL printed after each send.`,
-    );
+    await createEtherealTransporter();
   }
+
+  return transporterState!;
+}
+
+async function createEtherealTransporter(): Promise<TransporterState> {
+  const testAccount = await nodemailer.createTestAccount();
+  transporterState = {
+    transport: nodemailer.createTransport({
+      host: "smtp.ethereal.email",
+      port: 587,
+      auth: { user: testAccount.user, pass: testAccount.pass },
+    }),
+    fromAddress: testAccount.user,
+    isTest: true,
+  };
+  console.log(
+    `[email] No SMTP configured — using Ethereal test account: ${testAccount.user}\n` +
+    `[email] Emails are NOT delivered to inboxes. Open the preview URL printed after each send.`,
+  );
 
   return transporterState;
 }
@@ -67,17 +86,24 @@ async function sendMail(
 ): Promise<void> {
   const { transport, fromAddress, isTest } = await getTransporterState();
 
-  const info = await transport.sendMail({
-    from: `"Swipe2Work" <${fromAddress}>`,
-    to,
-    subject,
-    text,
-    html,
-  });
+  console.debug(`[email] Sending email to ${to} via ${fromAddress} (test=${isTest})`);
 
-  if (isTest) {
-    // Print the Ethereal preview URL — open it in a browser to see the email.
-    console.log(`[email] Preview → ${nodemailer.getTestMessageUrl(info)}`);
+  try {
+    const info = await transport.sendMail({
+      from: `"Swipe2Work" <${fromAddress}>`,
+      to,
+      subject,
+      text,
+      html,
+    });
+
+    if (isTest) {
+      // Print the Ethereal preview URL — open it in a browser to see the email.
+      console.log(`[email] Preview → ${nodemailer.getTestMessageUrl(info)}`);
+    }
+  } catch (error) {
+    console.error("[email] sendMail error:", error);
+    throw error;
   }
 }
 

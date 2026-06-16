@@ -202,6 +202,37 @@ export async function getMe(): Promise<{ user: AuthUser }> {
   return apiRequest<{ user: AuthUser }>("/user/me");
 }
 
+export async function forgotPasswordApi(email: string): Promise<{ message: string; resetToken?: string }> {
+  return apiRequest<{ message: string; resetToken?: string }>("/user/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
+export async function resetPasswordApi(
+  token: string,
+  password: string,
+  confirmPassword: string,
+): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>("/user/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ token, password, confirmPassword }),
+  });
+}
+
+export async function verifyEmailCode(code: string): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>("/user/verify-email", {
+    method: "POST",
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function resendVerificationCodeApi(): Promise<{ message: string }> {
+  return apiRequest<{ message: string }>("/user/resend-verification", {
+    method: "POST",
+  });
+}
+
 export async function loginNormalUser(email: string, password: string) {
   const payload = await apiRequest<{ user: AuthUser }>("/user/login", {
     method: "POST",
