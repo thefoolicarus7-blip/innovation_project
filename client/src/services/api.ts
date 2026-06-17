@@ -7,6 +7,7 @@ import type {
   JobApplication,
   UserDailyStats,
   UserApplication,
+  WorkExperience,
 } from "../types";
 
 const API_BASE_URL =
@@ -320,7 +321,11 @@ export type CvData = {
   fullName: string;
   email: string;
   phone: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
   yearsOfExperience: number;
+  workExperiences: WorkExperience[];
   skills: string[];
   education: string;
   summary: string;

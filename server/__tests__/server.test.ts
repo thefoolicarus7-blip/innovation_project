@@ -419,7 +419,7 @@ test("POST /api/users/change-password validates current and new password constra
 
   const hashedPwd = await bcrypt.hash("secret123", 10);
   let savedUser: any = null;
-  mockedUserModel.findById = async (id: string) => ({
+  mockedUserModel.findById = (id: string) => ({
     _id: id,
     password: hashedPwd,
     save: async function() {
