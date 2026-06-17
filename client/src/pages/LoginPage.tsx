@@ -105,6 +105,12 @@ export function CompanyLoginPage() {
               </div>
             </div>
  
+            <div style={{ textAlign: "right", marginTop: 8, marginBottom: 16 }}>
+              <Link to="/company/forgot-password" style={{ color: "var(--primary)", fontWeight: 600 }}>
+                Forgot password?
+              </Link>
+            </div>
+
             {error ? (
               <div style={{ color: "var(--danger)", fontSize: "0.85rem", textAlign: "center" }}>
                 {error === "Email not verified" ? (

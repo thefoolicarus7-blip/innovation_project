@@ -305,6 +305,49 @@ export async function forgotPassword(request: Request, response: Response) {
   }
 }
 
+export async function forgotCompanyPassword(request: Request, response: Response) {
+  const { email } = request.body as { email?: string };
+
+  if (!email) {
+    response.status(400).json({ message: "Email is required" });
+    return;
+  }
+
+  const normalizedEmail = email.toLowerCase();
+  console.debug(`[auth] forgotCompanyPassword requested for ${normalizedEmail}`);
+
+  try {
+    const user = await User.findOne({
+      email: normalizedEmail,
+      role: { $in: ["company", "Admin"] },
+    });
+
+    if (!user) {
+      console.debug(`[auth] forgotCompanyPassword: email not found or not employer: ${normalizedEmail}`);
+      response.status(404).json({
+        message: "No employer account found with this email address.",
+      });
+      return;
+    }
+
+    const rawToken = crypto.randomBytes(24).toString("hex");
+    user.resetToken = rawToken;
+    user.resetTokenExpiry = Date.now() + 1000 * 60 * 60;
+    await user.save();
+
+    console.debug(`[auth] generated reset token for company ${normalizedEmail}: ${rawToken}`);
+    await sendPasswordResetEmail(normalizedEmail, rawToken, "company/reset-password");
+
+    response.status(200).json({
+      message: "Password reset instructions have been sent to your email.",
+      resetToken: rawToken,
+    });
+  } catch (error) {
+    console.error("[auth] forgotCompanyPassword error:", error);
+    response.status(500).json({ message: "Unable to process password reset" });
+  }
+}
+
 export async function resetPassword(request: Request, response: Response) {
   const { token, password, confirmPassword } = request.body as {
     token?: string;

@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import User from "../models/user.model.js";
 import CompanyProfile from "../models/company-profile.model.js";
 import { extractSkillsFromCV } from "../services/ai.service.js";
+import { sendVerificationApprovedEmail, sendVerificationRejectedEmail } from "../services/email.service.js";
 
 export async function getUnverifiedUsers(request: Request, response: Response) {
   try {
@@ -102,5 +103,106 @@ export async function verifyUser(request: Request, response: Response) {
       message: "Unable to verify user",
       error: error instanceof Error ? error.message : String(error),
     });
+  }
+}
+
+export async function getPendingCompanyVerifications(
+  request: Request,
+  response: Response,
+) {
+  try {
+    const profiles = await CompanyProfile.find({
+      verificationStatus: "Pending Review",
+    });
+
+    const userIds = profiles.map((p) => p.ownerId);
+    const companyUsers = await User.find({
+      _id: { $in: userIds },
+    }).select("-password");
+
+    const items = profiles.map((profile) => {
+      const user = companyUsers.find((u) => String(u._id) === profile.ownerId);
+      return {
+        id: profile.ownerId,
+        email: user?.email || "",
+        name: user ? `${user.firstName} ${user.lastName}` : "",
+        profile,
+      };
+    });
+
+    response.status(200).json({ items });
+  } catch (error) {
+    response.status(500).json({
+      message: "Unable to fetch pending verifications",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+export async function approveCompanyVerification(request: Request, response: Response) {
+  const { companyId } = request.params;
+
+  if (!companyId) {
+    response.status(400).json({ message: "companyId is required" });
+    return;
+  }
+
+  try {
+    const profile = await CompanyProfile.findOneAndUpdate(
+      { ownerId: companyId },
+      { verificationStatus: "Verified", rejectionReason: "" },
+      { new: true }
+    );
+
+    if (!profile) {
+      response.status(404).json({ message: "Company profile not found" });
+      return;
+    }
+
+    const user = await User.findById(companyId);
+    if (user) {
+      await sendVerificationApprovedEmail(user.email, profile.companyName);
+    }
+
+    response.status(200).json({ message: "Company verified successfully", profile });
+  } catch (error) {
+    response.status(500).json({ message: "Unable to approve verification" });
+  }
+}
+
+export async function rejectCompanyVerification(request: Request, response: Response) {
+  const { companyId } = request.params;
+  const { reason } = request.body;
+
+  if (!companyId) {
+    response.status(400).json({ message: "companyId is required" });
+    return;
+  }
+  
+  if (!reason) {
+    response.status(400).json({ message: "rejection reason is required" });
+    return;
+  }
+
+  try {
+    const profile = await CompanyProfile.findOneAndUpdate(
+      { ownerId: companyId },
+      { verificationStatus: "Rejected", rejectionReason: reason },
+      { new: true }
+    );
+
+    if (!profile) {
+      response.status(404).json({ message: "Company profile not found" });
+      return;
+    }
+
+    const user = await User.findById(companyId);
+    if (user) {
+      await sendVerificationRejectedEmail(user.email, profile.companyName, reason);
+    }
+
+    response.status(200).json({ message: "Company verification rejected", profile });
+  } catch (error) {
+    response.status(500).json({ message: "Unable to reject verification" });
   }
 }
