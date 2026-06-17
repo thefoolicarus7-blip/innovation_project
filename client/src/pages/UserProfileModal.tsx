@@ -584,38 +584,6 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
                 <button className="profile-action-item" onClick={() => goTo("/user/change-password")}>
                   <span>Change Password</span><span className="profile-action-arrow">›</span>
                 </button>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Two-Factor Authentication (2FA)</span>
-                  <span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-              </div>
-
-              <p className="profile-section-label">Login Activity</p>
-              <div className="profile-action-list">
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Login Activity &amp; History</span>
-                  <span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Device History</span>
-                  <span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-              </div>
-
-              <p className="profile-section-label">Privacy</p>
-              <div className="profile-action-list">
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Account Privacy Settings</span>
-                  <span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Notification Preferences</span>
-                  <span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Data Download</span>
-                  <span className="profile-status-badge soon">Coming Soon</span>
-                </div>
               </div>
 
               <div className="profile-divider" />
@@ -647,38 +615,6 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
                 <button className="profile-action-item" onClick={() => goTo("/user/applications")}>
                   <span>Applied Jobs History</span><span className="profile-action-arrow">›</span>
                 </button>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Saved Jobs</span><span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Bookmarked Employers</span><span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Job Alerts &amp; Preferences</span><span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-              </div>
-
-              <p className="profile-section-label">Profile Settings</p>
-              <div className="profile-action-list">
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Profile Visibility Settings</span><span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Language Preferences</span><span className="profile-status-badge soon">Coming Soon</span>
-                </div>
-              </div>
-
-              <p className="profile-section-label">Help &amp; Legal</p>
-              <div className="profile-action-list">
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Support &amp; Help Center</span><span className="profile-action-arrow">›</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Terms and Conditions</span><span className="profile-action-arrow">›</span>
-                </div>
-                <div className="profile-action-item" style={{ cursor: "default" }}>
-                  <span>Privacy Policy</span><span className="profile-action-arrow">›</span>
-                </div>
               </div>
 
               <div className="profile-divider" />
