@@ -3,6 +3,7 @@ import Candidate from "../models/candidate.model.js";
 import CompanyApplication from "../models/company-application.model.js";
 import CompanyJob from "../models/company-job.model.js";
 import CompanyProfileModel from "../models/company-profile.model.js";
+import User from "../models/user.model.js";
 import type {
   CompanyProfile,
   Job,
@@ -59,6 +60,21 @@ export async function createJobForCompany(
 ) {
   const userId = getAuthorizedUserId(request, response);
   if (!userId) return;
+
+  // Verification gate — only verified companies may publish job roles
+  try {
+    const companyUser = await User.findById(userId);
+    if (!companyUser || companyUser.isVerified !== "true") {
+      response.status(403).json({
+        message:
+          "Company verification required. Please upload valid business registration documents before publishing job roles.",
+      });
+      return;
+    }
+  } catch {
+    response.status(500).json({ message: "Unable to verify company status" });
+    return;
+  }
 
   const {
     title,
@@ -256,6 +272,47 @@ export async function saveProfileForCompany(
     response.status(200).json({ item: saved });
   } catch (error) {
     response.status(500).json({ message: "Unable to save company profile" });
+  }
+}
+
+export async function saveVerificationDocs(
+  request: AuthenticatedRequest,
+  response: Response,
+) {
+  const userId = getAuthorizedUserId(request, response);
+  if (!userId) return;
+
+  const { businessRegDocUrl, taxIdDocUrl } = request.body as {
+    businessRegDocUrl?: string;
+    taxIdDocUrl?: string;
+  };
+
+  if (!businessRegDocUrl && !taxIdDocUrl) {
+    response.status(400).json({ message: "At least one document URL is required" });
+    return;
+  }
+
+  try {
+    const updateFields: Record<string, string> = {};
+    if (businessRegDocUrl) updateFields.businessRegDocUrl = businessRegDocUrl;
+    if (taxIdDocUrl)       updateFields.taxIdDocUrl       = taxIdDocUrl;
+
+    const saved = await CompanyProfileModel.findOneAndUpdate(
+      { ownerId: userId },
+      { $set: updateFields },
+      { new: true },
+    );
+
+    if (!saved) {
+      response.status(404).json({
+        message: "Company profile not found. Please complete your profile first.",
+      });
+      return;
+    }
+
+    response.status(200).json({ item: saved });
+  } catch {
+    response.status(500).json({ message: "Unable to save verification documents" });
   }
 }
 

@@ -39,52 +39,70 @@ export function AdminCompaniesPage() {
           <table>
             <thead>
               <tr>
-                <th>Company Name</th>
-                <th>Industry</th>
+                <th>Company</th>
                 <th>Owner Email</th>
-                <th>Website</th>
+                <th>Verification Documents</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {unverifiedCompanies.map((item) => (
-                <tr key={item.id}>
-                  <td style={{ fontWeight: 600 }}>
-                    {item.profile?.companyName || "N/A"}
-                  </td>
-                  <td>{item.profile?.industry || "N/A"}</td>
-                  <td>{item.email}</td>
-                  <td>
-                    {item.profile?.website ? (
-                      <a
-                        href={item.profile.website}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={{ color: "var(--primary)" }}
+              {unverifiedCompanies.map((item) => {
+                const bizDoc = (item.profile as any)?.businessRegDocUrl as string | undefined;
+                const taxDoc = (item.profile as any)?.taxIdDocUrl       as string | undefined;
+                const hasAnyDoc = !!(bizDoc || taxDoc);
+
+                return (
+                  <tr key={item.id}>
+                    <td>
+                      <div style={{ fontWeight: 600 }}>{item.profile?.companyName || "N/A"}</div>
+                      <div style={{ fontSize: "0.8rem", color: "var(--muted)" }}>
+                        {item.profile?.industry || "—"}{item.profile?.website ? " · " : ""}
+                        {item.profile?.website && (
+                          <a href={item.profile.website} target="_blank" rel="noreferrer"
+                            style={{ color: "var(--primary)" }}>Website</a>
+                        )}
+                      </div>
+                    </td>
+                    <td>{item.email}</td>
+                    <td>
+                      {!hasAnyDoc ? (
+                        <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>No documents submitted</span>
+                      ) : (
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {bizDoc && (
+                            <a href={bizDoc} target="_blank" rel="noreferrer"
+                              className="secondary-btn"
+                              style={{ padding: "4px 10px", fontSize: "0.78rem", display: "inline-flex" }}>
+                              Business Registration
+                            </a>
+                          )}
+                          {taxDoc && (
+                            <a href={taxDoc} target="_blank" rel="noreferrer"
+                              className="secondary-btn"
+                              style={{ padding: "4px 10px", fontSize: "0.78rem", display: "inline-flex" }}>
+                              Tax Identification
+                            </a>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <button
+                        className="primary-btn"
+                        style={{ padding: "6px 12px", fontSize: "0.85rem" }}
+                        disabled={!hasAnyDoc}
+                        title={!hasAnyDoc ? "Company has not submitted any documents yet" : "Verify this company"}
+                        onClick={() => handleVerify(item.id)}
                       >
-                        Visit
-                      </a>
-                    ) : (
-                      "N/A"
-                    )}
-                  </td>
-                  <td>
-                    <button
-                      className="primary-btn"
-                      style={{ padding: "6px 12px", fontSize: "0.85rem" }}
-                      onClick={() => handleVerify(item.id)}
-                    >
-                      Verify
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                        Verify
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
               {unverifiedCompanies.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={5}
-                    style={{ textAlign: "center", color: "var(--muted)" }}
-                  >
+                  <td colSpan={4} style={{ textAlign: "center", color: "var(--muted)" }}>
                     No pending company verifications.
                   </td>
                 </tr>

@@ -1,4 +1,5 @@
 import { FormEvent, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { addJob } from "../store/slices/portalSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { Job } from "../types";
@@ -15,9 +16,11 @@ const emptyForm: Omit<Job, "id" | "createdAt"> = {
 };
 
 export function JobsPage() {
-  const dispatch = useAppDispatch();
-  const jobs = useAppSelector((state: any) => state.portal.jobs) as Job[];
-  const analytics = useAppSelector((state: any) => state.portal.analytics);
+  const dispatch   = useAppDispatch();
+  const user       = useAppSelector((state: any) => state.auth.user);
+  const jobs       = useAppSelector((state: any) => state.portal.jobs) as Job[];
+  const analytics  = useAppSelector((state: any) => state.portal.analytics);
+  const isVerified = user?.isVerified === "true";
   const [form, setForm] = useState(emptyForm);
   const [tagsInput, setTagsInput] = useState("");
 
@@ -93,6 +96,32 @@ export function JobsPage() {
           <strong>{analytics?.conversionRate ?? 0}%</strong>
         </article>
       </div>
+
+      {/* Verification gate banner — shown when company is not yet verified */}
+      {!isVerified && (
+        <div style={{
+          background: "rgba(239,68,68,0.08)",
+          border: "1px solid rgba(239,68,68,0.35)",
+          borderRadius: "var(--radius-md)",
+          padding: "16px 20px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: 14,
+        }}>
+          <span style={{ fontSize: "1.2rem", lineHeight: 1, flexShrink: 0 }}>⚠</span>
+          <div>
+            <p style={{ fontWeight: 600, color: "var(--danger)", marginBottom: 4 }}>
+              Company verification required
+            </p>
+            <p style={{ fontSize: "0.85rem", color: "var(--muted-foreground)", marginBottom: 10 }}>
+              Please upload valid business registration documents before publishing job roles.
+            </p>
+            <Link to="/portal/company" className="secondary-btn" style={{ fontSize: "0.82rem", padding: "6px 14px", display: "inline-flex" }}>
+              Upload Verification Documents →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="two-column">
         <section className="panel">
@@ -204,7 +233,12 @@ export function JobsPage() {
               </select>
             </div>
 
-            <button type="submit" className="primary-btn">
+            <button
+              type="submit"
+              className="primary-btn"
+              disabled={!isVerified}
+              title={!isVerified ? "Company verification required before publishing" : undefined}
+            >
               Publish Role
             </button>
           </form>
@@ -270,5 +304,3 @@ export function JobsPage() {
     </div>
   );
 }
-
-import { Link } from "react-router-dom";

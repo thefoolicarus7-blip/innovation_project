@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/slices/authSlice";
 import { updateCompanyProfile } from "../store/slices/portalSlice";
-import { uploadDocumentFile } from "../services/api";
+import { uploadDocumentFile, saveCompanyVerificationDocs } from "../services/api";
 import type { UploadedFile } from "../services/api";
 import type { CompanyProfile } from "../types";
 
@@ -129,9 +129,34 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
   const [logoUploading, setLogoUploading] = useState(false);
 
   // Load stored docs + logo once on open
+  // Priority: localStorage (full metadata) → companyProfile DB URLs (fallback for display)
   useEffect(() => {
     if (user?.id) {
-      setDocs(loadCompanyDocs(user.id));
+      const local = loadCompanyDocs(user.id);
+      const merged: CompanyDocs = { ...local };
+
+      // If the DB has a URL we don't have locally, show it with minimal metadata
+      if (companyProfile?.businessRegDocUrl && !local.businessReg) {
+        merged.businessReg = {
+          secureUrl:    companyProfile.businessRegDocUrl,
+          originalName: "Business Registration Document",
+          mimeType:     "application/pdf",
+          bytes:        0,
+          uploadedAt:   "",
+        };
+      }
+      if (companyProfile?.taxIdDocUrl && !local.taxId) {
+        merged.taxId = {
+          secureUrl:    companyProfile.taxIdDocUrl,
+          originalName: "Tax Identification Document",
+          mimeType:     "application/pdf",
+          bytes:        0,
+          uploadedAt:   "",
+        };
+      }
+
+      setDocs(merged);
+
       try {
         const raw = localStorage.getItem(`s2w_company_logo_${user.id}`);
         if (raw) setLogo(raw);
@@ -231,7 +256,13 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
       const doc: StoredDoc = { ...result, uploadedAt: new Date().toISOString() };
       const updated: CompanyDocs = { ...docs, [slot.key]: doc };
       setDocs(updated);
+      // Persist full metadata locally for display
       localStorage.setItem(companyDocsKey(user.id), JSON.stringify(updated));
+      // Persist URL to DB so the admin can review it (mirrors Job Seeker idUrl flow)
+      const dbPayload: { businessRegDocUrl?: string; taxIdDocUrl?: string } = {};
+      if (slot.key === "businessReg") dbPayload.businessRegDocUrl = result.secureUrl;
+      if (slot.key === "taxId")       dbPayload.taxIdDocUrl       = result.secureUrl;
+      await saveCompanyVerificationDocs(dbPayload);
     } catch (err) {
       setDocErrors((er) => ({
         ...er,
@@ -452,22 +483,43 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
             <div className="profile-section">
 
               <p className="profile-section-label">B. Verification Status</p>
-              <div style={{ display: "grid", gap: 8 }}>
-                <div className="profile-info-row">
-                  <span>Email Verification</span>
-                  <span className={`profile-status-badge ${user?.isVerified === "true" ? "verified" : "pending"}`}>
-                    {user?.isVerified === "true" ? "Verified" : "Pending"}
-                  </span>
-                </div>
-                <div className="profile-info-row">
-                  <span>Phone Number</span>
-                  <span className="profile-status-badge pending">Not Added</span>
-                </div>
-                <div className="profile-info-row">
-                  <span>Company Verification</span>
-                  <span className="profile-status-badge pending">Pending Review</span>
-                </div>
-              </div>
+              {(() => {
+                const isVerified  = user?.isVerified === "true";
+                const hasDoc      = !!(companyProfile?.businessRegDocUrl || companyProfile?.taxIdDocUrl);
+                const companyBadge = isVerified ? "verified"
+                                   : hasDoc     ? "pending"
+                                   :              "pending";
+                const companyLabel = isVerified ? "Verified"
+                                   : hasDoc     ? "Under Review"
+                                   :              "Not Submitted";
+                return (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <div className="profile-info-row">
+                      <span>Email Verification</span>
+                      <span className={`profile-status-badge ${isVerified ? "verified" : "pending"}`}>
+                        {isVerified ? "Verified" : "Pending"}
+                      </span>
+                    </div>
+                    <div className="profile-info-row">
+                      <span>Phone Number</span>
+                      <span className="profile-status-badge pending">Not Added</span>
+                    </div>
+                    <div className="profile-info-row">
+                      <span>Company Verification</span>
+                      <span className={`profile-status-badge ${companyBadge}`}>{companyLabel}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Guidance note — only shown when not yet verified */}
+              {user?.isVerified !== "true" && (
+                <p style={{ fontSize: "0.78rem", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
+                  {companyProfile?.businessRegDocUrl || companyProfile?.taxIdDocUrl
+                    ? "Your documents are under review. Our team will verify your company within 1–2 business days. You will be able to publish job roles once verified."
+                    : "Upload at least one business document below. Our team will review and verify your company, after which you can publish job roles."}
+                </p>
+              )}
 
               <p className="profile-section-label">Business Documents</p>
 

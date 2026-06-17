@@ -67,6 +67,9 @@ export type CompanyProfile = {
   website: string;
   about: string;
   teamSize: string;
+  // Verification document URLs — persisted to DB so admin can review
+  businessRegDocUrl?: string;
+  taxIdDocUrl?: string;
 };
 
 export type CompanyAnalytics = {

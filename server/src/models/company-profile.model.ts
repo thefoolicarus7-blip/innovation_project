@@ -44,6 +44,9 @@ const companyProfileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    // Verification document URLs — saved when company uploads docs for admin review
+    businessRegDocUrl: { type: String, default: undefined },
+    taxIdDocUrl:       { type: String, default: undefined },
   },
   {
     versionKey: false,

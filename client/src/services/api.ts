@@ -65,6 +65,7 @@ export async function loginCompany(
       email: string;
       role: "company";
       companyId: string;
+      isVerified: string;
     };
   }>("/user/company-login", {
     method: "POST",
@@ -78,6 +79,7 @@ export async function loginCompany(
       email: payload.user.email,
       role: payload.user.role,
       companyId: payload.user.companyId,
+      isVerified: payload.user.isVerified,
     },
   };
 }
@@ -189,6 +191,17 @@ export async function saveCompanyProfile(
     },
   );
 
+  return payload.item;
+}
+
+export async function saveCompanyVerificationDocs(docs: {
+  businessRegDocUrl?: string;
+  taxIdDocUrl?: string;
+}): Promise<CompanyProfile> {
+  const payload = await apiRequest<{ item: CompanyProfile }>("/company/verification-docs", {
+    method: "PATCH",
+    body: JSON.stringify(docs),
+  });
   return payload.item;
 }
 
