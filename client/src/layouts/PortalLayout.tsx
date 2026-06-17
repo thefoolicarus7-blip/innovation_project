@@ -17,8 +17,9 @@ const navItems = [
 
 export function PortalLayout() {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state: any) => state.auth.user);
-  const loading = useAppSelector((state: any) => state.portal.loading);
+  const user           = useAppSelector((state: any) => state.auth.user);
+  const companyProfile = useAppSelector((state: any) => state.portal.companyProfile);
+  const loading        = useAppSelector((state: any) => state.portal.loading);
   const navigate = useNavigate();
   // Controls visibility of the profile slide-in drawer
   const [profileOpen, setProfileOpen] = useState(false);
@@ -95,9 +96,19 @@ export function PortalLayout() {
               <h1>Workspace</h1>
               <p>Curate your hiring experience at Nysa.</p>
             </div>
-            <div className="chip-list">
-              <span className="pill">Role: {user?.role ?? "guest"}</span>
-              <span className="pill">Status: Active</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="chip-list">
+                <span className="pill">Role: {user?.role ?? "guest"}</span>
+                <span className="pill">Status: Active</span>
+              </div>
+              <button
+                className="profile-icon-btn"
+                onClick={() => setProfileOpen(true)}
+                aria-label="Open company profile"
+                title={`Profile: ${companyProfile?.companyName ?? user?.name ?? "Company"}`}
+              >
+                {(companyProfile?.companyName ?? user?.name ?? "C").charAt(0).toUpperCase()}
+              </button>
             </div>
           </div>
         </header>

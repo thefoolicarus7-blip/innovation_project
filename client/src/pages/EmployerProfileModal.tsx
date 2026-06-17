@@ -116,17 +116,41 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
   const [docs,      setDocs]      = useState<CompanyDocs>({});
   const [uploading, setUploading] = useState<Partial<Record<keyof CompanyDocs, boolean>>>({});
   const [docErrors, setDocErrors] = useState<Partial<Record<keyof CompanyDocs, string>>>({});
-  const bizRef = useRef<HTMLInputElement>(null);
-  const taxRef = useRef<HTMLInputElement>(null);
+  const bizRef  = useRef<HTMLInputElement>(null);
+  const taxRef  = useRef<HTMLInputElement>(null);
+  const logoRef = useRef<HTMLInputElement>(null);
   const docRefs: Record<keyof CompanyDocs, React.RefObject<HTMLInputElement | null>> = {
     businessReg: bizRef,
     taxId:       taxRef,
   };
 
-  // Load stored docs once on open
+  // ── Company logo state ────────────────────────────────────────────────────
+  const [logo,          setLogo]          = useState<string>("");
+  const [logoUploading, setLogoUploading] = useState(false);
+
+  // Load stored docs + logo once on open
   useEffect(() => {
-    if (user?.id) setDocs(loadCompanyDocs(user.id));
+    if (user?.id) {
+      setDocs(loadCompanyDocs(user.id));
+      try {
+        const raw = localStorage.getItem(`s2w_company_logo_${user.id}`);
+        if (raw) setLogo(raw);
+      } catch { /* ignore */ }
+    }
   }, [user?.id]);
+
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+    e.target.value = "";
+    setLogoUploading(true);
+    try {
+      const result = await uploadDocumentFile(file, "swipe2work/company-logos");
+      setLogo(result.secureUrl);
+      localStorage.setItem(`s2w_company_logo_${user.id}`, result.secureUrl);
+    } catch { /* upload errors are silent for avatar */ }
+    finally { setLogoUploading(false); }
+  };
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   const initial = (form.companyName || companyProfile?.companyName || user?.name || "C").charAt(0).toUpperCase();
@@ -256,9 +280,40 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
           {activeTab === "company" && (
             <div className="profile-section">
 
-              {/* Avatar row */}
+              {/* Avatar row — click avatar to upload company logo */}
+              <input
+                ref={logoRef}
+                type="file"
+                accept=".jpg,.jpeg,.png,.webp"
+                style={{ display: "none" }}
+                onChange={handleLogoUpload}
+              />
               <div className="profile-avatar-row">
-                <div className="profile-avatar">{initial}</div>
+                <button
+                  type="button"
+                  onClick={() => logoRef.current?.click()}
+                  disabled={logoUploading}
+                  title="Change company logo"
+                  style={{ background: "none", border: "none", padding: 0, cursor: "pointer", position: "relative", flexShrink: 0 }}
+                >
+                  {logo ? (
+                    <img
+                      src={logo}
+                      alt="Company logo"
+                      className="profile-avatar"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <div className="profile-avatar">{logoUploading ? "…" : initial}</div>
+                  )}
+                  <span style={{
+                    position: "absolute", bottom: 0, right: 0,
+                    background: "var(--primary)", color: "#fff",
+                    borderRadius: "50%", width: 18, height: 18,
+                    fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center",
+                    border: "2px solid var(--background)",
+                  }}>✎</span>
+                </button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontWeight: 600, fontSize: "0.95rem", marginBottom: 2 }}>
                     {form.companyName || companyProfile?.companyName || "—"}
@@ -271,6 +326,9 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
                       {form.website || companyProfile?.website}
                     </p>
                   )}
+                  <p style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", marginTop: 4 }}>
+                    Click logo to change
+                  </p>
                 </div>
               </div>
 
@@ -402,7 +460,7 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
                   </span>
                 </div>
                 <div className="profile-info-row">
-                  <span>Phone Verification</span>
+                  <span>Phone Number</span>
                   <span className="profile-status-badge pending">Not Added</span>
                 </div>
                 <div className="profile-info-row">

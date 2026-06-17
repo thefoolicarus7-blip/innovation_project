@@ -201,6 +201,7 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
         fullName: form.fullName.trim(), email: form.email.trim(), phone: form.phone.trim(),
         yearsOfExperience: cvData?.yearsOfExperience ?? 0,
         skills: cvData?.skills ?? [], education: cvData?.education ?? "", summary: cvData?.summary ?? "",
+        workExperiences: cvData?.workExperiences ?? [],
       };
       const updated = await saveCV(payload);
       setCvData(updated);
