@@ -353,3 +353,43 @@ export async function generateCVSummary(data: {
   return payload.summary;
 }
 
+// ── Document / media upload ───────────────────────────────────────────────────
+// Uses multipart/form-data — cannot reuse apiRequest() which forces JSON content-type.
+// Endpoint: POST /api/media/upload  (requires auth cookie, 10 MB limit)
+// Accepted types: application/pdf, image/jpeg, image/png, image/webp
+
+export type UploadedFile = {
+  secureUrl: string;
+  originalName: string;
+  mimeType: string;
+  bytes: number;
+};
+
+export async function uploadDocumentFile(
+  file: File,
+  folder: string,
+): Promise<UploadedFile> {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("folder", folder);
+
+  // Do NOT set Content-Type — the browser must add it together with the multipart boundary
+  const response = await fetch(`${API_BASE_URL}/media/upload`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    let msg = `Upload failed (${response.status})`;
+    try {
+      const err = (await response.json()) as { message?: string };
+      if (err.message) msg = err.message;
+    } catch { /* ignore JSON parse errors */ }
+    throw new Error(msg);
+  }
+
+  const payload = (await response.json()) as { file: UploadedFile };
+  return payload.file;
+}
+

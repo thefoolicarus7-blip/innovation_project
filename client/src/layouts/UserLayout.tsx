@@ -94,6 +94,15 @@ export function UserLayout() {
               <h1>Welcome back, {user?.name?.split(" ")[0]}</h1>
               <p>Find your next opportunity.</p>
             </div>
+            {/* Profile icon — also opens the profile drawer */}
+            <button
+              className="profile-icon-btn"
+              onClick={() => setProfileOpen(true)}
+              aria-label="Open profile"
+              title={`Profile: ${user?.name ?? "User"}`}
+            >
+              {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+            </button>
           </div>
         </header>
 
