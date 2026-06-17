@@ -209,6 +209,13 @@ export async function forgotPasswordApi(email: string): Promise<{ message: strin
   });
 }
 
+export async function forgotCompanyPasswordApi(email: string): Promise<{ message: string; resetToken?: string }> {
+  return apiRequest<{ message: string; resetToken?: string }>("/user/company-forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
+}
+
 export async function resetPasswordApi(
   token: string,
   password: string,

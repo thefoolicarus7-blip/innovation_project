@@ -10,6 +10,7 @@ import {
   listJobsForCompany,
   patchApplicationStatus,
   saveProfileForCompany,
+  submitCompanyVerification,
 } from "../controllers/company.controller.js";
 import { authenticate } from "../middlewares/auth.middleware.js";
 
@@ -25,6 +26,7 @@ companyRouter.get("/candidates", listCandidatesForCompany);
 companyRouter.get("/candidates/:candidateId", getCandidateForCompany);
 companyRouter.get("/profile", getProfileForCompany);
 companyRouter.put("/profile", saveProfileForCompany);
+companyRouter.put("/verification", submitCompanyVerification);
 companyRouter.get("/analytics", getAnalyticsForCompany);
 
 export default companyRouter;

@@ -12,6 +12,7 @@ import {
   registerUser,
   updateUserDocuments,
   forgotPassword,
+  forgotCompanyPassword,
   resetPassword,
   verifyEmail,
   resendVerificationCode,
@@ -25,6 +26,7 @@ userRouter.post("/login", loginUser);
 userRouter.post("/logout", logoutUser);
 userRouter.post("/company-login", loginCompanyUser);
 userRouter.post("/forgot-password", forgotPassword);
+userRouter.post("/company-forgot-password", forgotCompanyPassword);
 userRouter.post("/reset-password", resetPassword);
 userRouter.post("/verify-email", verifyEmail);
 userRouter.post("/resend-verification", resendVerificationCode);

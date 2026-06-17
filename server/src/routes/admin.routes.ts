@@ -4,6 +4,9 @@ import {
   getUnverifiedUsers,
   getUnverifiedCompanies,
   verifyUser,
+  getPendingCompanyVerifications,
+  approveCompanyVerification,
+  rejectCompanyVerification,
 } from "../controllers/admin.controller.js";
 
 const adminRouter = Router();
@@ -14,5 +17,8 @@ adminRouter.use(authenticate, isAdmin);
 adminRouter.get("/unverified/users", getUnverifiedUsers);
 adminRouter.get("/unverified/companies", getUnverifiedCompanies);
 adminRouter.patch("/verify/:userId", verifyUser);
+adminRouter.get("/company-verifications", getPendingCompanyVerifications);
+adminRouter.patch("/company-verifications/:companyId/approve", approveCompanyVerification);
+adminRouter.patch("/company-verifications/:companyId/reject", rejectCompanyVerification);
 
 export default adminRouter;

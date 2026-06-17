@@ -42,7 +42,7 @@ export function JobsPage() {
     <div className="page-stack">
       <section className="dashboard-hero">
         <div className="hero-content">
-          <h2>Craft the next chapter of Nysa.</h2>
+          <h2>Craft the next chapter of Career.</h2>
           <p>
             Your roles are more than just listings—they are invitations to join
             a community. Build beautiful, meaningful job posts that resonate

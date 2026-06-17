@@ -181,8 +181,9 @@ export async function sendVerificationEmail(
 export async function sendPasswordResetEmail(
   toEmail: string,
   rawToken: string,
+  resetPath: string = "reset-password",
 ): Promise<void> {
-  const resetLink = `${FRONTEND_URL}/reset-password?token=${rawToken}`;
+  const resetLink = `${FRONTEND_URL}/${resetPath}?token=${rawToken}`;
 
   const html = baseTemplate(
     "Reset your password",
@@ -275,4 +276,108 @@ export async function verifyEmailExistence(email: string): Promise<{ isValid: bo
   }
 
   return { isValid: true };
+}
+
+export async function sendVerificationSubmittedEmail(
+  toEmail: string,
+  companyName: string,
+): Promise<void> {
+  const html = baseTemplate(
+    "Verification Documents Submitted",
+    `
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      Hello ${companyName},
+    </p>
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      We have received your business verification documents. Our team is currently reviewing them.
+    </p>
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      We will notify you via email as soon as the review is complete. While pending, you will not be able to publish job postings.
+    </p>
+    `
+  );
+
+  await sendMail(
+    toEmail,
+    "Swipe2Work - Verification Documents Submitted",
+    html,
+    `Your verification documents for ${companyName} have been submitted and are pending review.`
+  );
+}
+
+export async function sendVerificationApprovedEmail(
+  toEmail: string,
+  companyName: string,
+): Promise<void> {
+  const html = baseTemplate(
+    "Company Verification Approved",
+    `
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      Great news, ${companyName}!
+    </p>
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      Your company verification has been approved. You now have full access to publish and manage job postings on Swipe2Work.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin:24px 0;">
+      <tr>
+        <td style="background:#6c47ff;border-radius:8px;">
+          <a href="${FRONTEND_URL}/company/login"
+            style="display:inline-block;padding:14px 32px;color:#fff;
+                   font-size:15px;font-weight:bold;text-decoration:none;">
+            Go to Portal
+          </a>
+        </td>
+      </tr>
+    </table>
+    `
+  );
+
+  await sendMail(
+    toEmail,
+    "Swipe2Work - Company Verification Approved",
+    html,
+    `Your verification for ${companyName} has been approved. You can now publish jobs.`
+  );
+}
+
+export async function sendVerificationRejectedEmail(
+  toEmail: string,
+  companyName: string,
+  reason: string,
+): Promise<void> {
+  const html = baseTemplate(
+    "Company Verification Rejected",
+    `
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      Hello ${companyName},
+    </p>
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      Unfortunately, we were unable to approve your company verification due to the following reason:
+    </p>
+    <div style="padding:16px;background:#fef2f2;border-left:4px solid #ef4444;margin:16px 0;color:#991b1b;font-size:14px;">
+      ${reason}
+    </div>
+    <p style="margin:0 0 16px;color:#6b7280;font-size:15px;line-height:1.6;">
+      Please log in to your employer profile, correct the issue, and resubmit your documents.
+    </p>
+    <table cellpadding="0" cellspacing="0" style="margin:24px 0;">
+      <tr>
+        <td style="background:#6c47ff;border-radius:8px;">
+          <a href="${FRONTEND_URL}/company/login"
+            style="display:inline-block;padding:14px 32px;color:#fff;
+                   font-size:15px;font-weight:bold;text-decoration:none;">
+            Log In to Resubmit
+          </a>
+        </td>
+      </tr>
+    </table>
+    `
+  );
+
+  await sendMail(
+    toEmail,
+    "Swipe2Work - Company Verification Rejected",
+    html,
+    `Your verification for ${companyName} has been rejected. Reason: ${reason}`
+  );
 }

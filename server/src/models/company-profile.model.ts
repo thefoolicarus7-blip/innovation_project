@@ -44,6 +44,27 @@ const companyProfileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    verificationStatus: {
+      type: String,
+      enum: ["Not Verified", "Pending Review", "Verified", "Rejected"],
+      default: "Not Verified",
+    },
+    registrationNumber: {
+      type: String,
+      default: "",
+    },
+    businessEmail: {
+      type: String,
+      default: "",
+    },
+    verificationDocumentUrl: {
+      type: String,
+      default: "",
+    },
+    rejectionReason: {
+      type: String,
+      default: "",
+    },
   },
   {
     versionKey: false,

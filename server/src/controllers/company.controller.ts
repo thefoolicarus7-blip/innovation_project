@@ -9,6 +9,7 @@ import type {
   JobApplication,
 } from "../data/company.types.js";
 import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
+import { sendVerificationSubmittedEmail } from "../services/email.service.js";
 
 const allowedApplicationStatuses: JobApplication["status"][] = [
   "New",
@@ -98,6 +99,15 @@ export async function createJobForCompany(
   }
 
   try {
+    const profile = await CompanyProfileModel.findOne({ ownerId: userId });
+    if (!profile || profile.verificationStatus !== "Verified") {
+      response.status(403).json({
+        message:
+          "Company verification is required before publishing job postings. Please upload your official business documents and wait for approval.",
+      });
+      return;
+    }
+
     const lastJob = await CompanyJob.findOne({ ownerId: userId }).sort({
       id: -1,
     });
@@ -256,6 +266,46 @@ export async function saveProfileForCompany(
     response.status(200).json({ item: saved });
   } catch (error) {
     response.status(500).json({ message: "Unable to save company profile" });
+  }
+}
+
+export async function submitCompanyVerification(
+  request: AuthenticatedRequest,
+  response: Response,
+) {
+  const userId = getAuthorizedUserId(request, response);
+  if (!userId) return;
+
+  const { registrationNumber, businessEmail, verificationDocumentUrl } =
+    request.body;
+
+  if (!registrationNumber || !businessEmail || !verificationDocumentUrl) {
+    response.status(400).json({ message: "All verification fields are required" });
+    return;
+  }
+
+  try {
+    const profile = await CompanyProfileModel.findOneAndUpdate(
+      { ownerId: userId },
+      {
+        registrationNumber,
+        businessEmail,
+        verificationDocumentUrl,
+        verificationStatus: "Pending Review",
+      },
+      { new: true },
+    );
+
+    if (!profile) {
+      response.status(404).json({ message: "Company profile not found" });
+      return;
+    }
+
+    await sendVerificationSubmittedEmail(businessEmail, profile.companyName);
+
+    response.status(200).json({ item: profile });
+  } catch (error) {
+    response.status(500).json({ message: "Unable to submit verification" });
   }
 }
 
