@@ -1,8 +1,10 @@
-import { useEffect } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/slices/authSlice";
 import { loadPortalData } from "../store/slices/portalSlice";
+// Profile drawer — added for profile icon feature; no existing code changed
+import { EmployerProfileModal } from "../pages/EmployerProfileModal";
 
 const navItems = [
   { to: "/portal/jobs", label: "Jobs" },
@@ -15,9 +17,12 @@ const navItems = [
 
 export function PortalLayout() {
   const dispatch = useAppDispatch();
-  const user = useAppSelector((state: any) => state.auth.user);
-  const loading = useAppSelector((state: any) => state.portal.loading);
+  const user           = useAppSelector((state: any) => state.auth.user);
+  const companyProfile = useAppSelector((state: any) => state.portal.companyProfile);
+  const loading        = useAppSelector((state: any) => state.portal.loading);
   const navigate = useNavigate();
+  // Controls visibility of the profile slide-in drawer
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     if (user?.role === "company") {
@@ -61,7 +66,15 @@ export function PortalLayout() {
           </div>
 
           <div className="sidebar-footer">
-            <div className="sidebar-user-card">
+            {/* Clicking the user card opens the profile panel */}
+            <div
+              className="sidebar-user-card"
+              onClick={() => setProfileOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setProfileOpen(true)}
+              style={{ cursor: "pointer" }}
+            >
               <p>{user?.name}</p>
               <small>{user?.role?.toUpperCase()}</small>
             </div>
@@ -83,9 +96,19 @@ export function PortalLayout() {
               <h1>Workspace</h1>
               <p>Curate your hiring experience at Nysa.</p>
             </div>
-            <div className="chip-list">
-              <span className="pill">Role: {user?.role ?? "guest"}</span>
-              <span className="pill">Status: Active</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="chip-list">
+                <span className="pill">Role: {user?.role ?? "guest"}</span>
+                <span className="pill">Status: Active</span>
+              </div>
+              <button
+                className="profile-icon-btn"
+                onClick={() => setProfileOpen(true)}
+                aria-label="Open company profile"
+                title={`Profile: ${companyProfile?.companyName ?? user?.name ?? "Company"}`}
+              >
+                {(companyProfile?.companyName ?? user?.name ?? "C").charAt(0).toUpperCase()}
+              </button>
             </div>
           </div>
         </header>
@@ -94,6 +117,11 @@ export function PortalLayout() {
           {loading ? <p>Loading portal data...</p> : <Outlet />}
         </section>
       </main>
+
+      {/* Profile slide-in drawer — rendered outside portal-main so it overlays everything */}
+      {profileOpen && (
+        <EmployerProfileModal onClose={() => setProfileOpen(false)} />
+      )}
     </div>
   );
 }

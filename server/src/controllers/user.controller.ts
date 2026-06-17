@@ -517,12 +517,16 @@ export async function saveMyCV(
     return;
   }
 
-  const { fullName, email, phone, yearsOfExperience, skills, education, summary } =
+  const { fullName, email, phone, dateOfBirth, gender, address, yearsOfExperience, workExperiences, skills, education, summary } =
     request.body as {
       fullName?: string;
       email?: string;
       phone?: string;
+      dateOfBirth?: string;
+      gender?: string;
+      address?: string;
       yearsOfExperience?: number;
+      workExperiences?: Array<{ jobTitle: string; company: string; startDate: string; endDate?: string; description?: string }>;
       skills?: string[];
       education?: string;
       summary?: string;
@@ -540,7 +544,11 @@ export async function saveMyCV(
       fullName,
       email,
       phone,
+      dateOfBirth,
+      gender,
+      address,
       yearsOfExperience: Number(yearsOfExperience),
+      workExperiences: Array.isArray(workExperiences) ? workExperiences : [],
       skills: Array.isArray(skills) ? skills : [],
       education,
       summary,
