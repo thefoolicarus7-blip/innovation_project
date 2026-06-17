@@ -78,7 +78,7 @@ export const ProfileScreen = ({ navigation }: any) => {
             )}
             <TouchableOpacity 
               style={styles.editImageButton}
-              onPress={() => navigation.navigate('DocumentUpload')}
+              onPress={() => navigation.navigate('EditProfilePicture')}
             >
               <Icon name="camera" size={20} color="#FFF" />
             </TouchableOpacity>
@@ -116,7 +116,13 @@ export const ProfileScreen = ({ navigation }: any) => {
           
           <TouchableOpacity 
             style={styles.menuItem} 
-            onPress={() => navigation.navigate('DocumentUpload')}
+            onPress={() => {
+              if (user?.isVerified === 'true') {
+                navigation.navigate('VerificationStatus');
+              } else {
+                navigation.navigate('DocumentUpload');
+              }
+            }}
           >
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
@@ -127,7 +133,7 @@ export const ProfileScreen = ({ navigation }: any) => {
             <Icon name="chevron-right" size={24} color={Colors.outline} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity style={styles.menuItem} onPress={() => navigation.navigate('Notifications')}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#F3E5F5' }]}>
                 <Icon name="bell-outline" size={24} color="#7B1FA2" />
@@ -137,10 +143,7 @@ export const ProfileScreen = ({ navigation }: any) => {
             <Icon name="chevron-right" size={24} color={Colors.outline} />
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.menuItem}
-            onPress={() => navigation.navigate('ChangePassword')}
-          >
+          <TouchableOpacity style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                 <Icon name="shield-check-outline" size={24} color="#F57C00" />

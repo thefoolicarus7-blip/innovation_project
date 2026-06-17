@@ -17,47 +17,23 @@ import { useAuth } from '../auth/AuthContext';
 export const ForgotPasswordScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [devToken, setDevToken] = useState<string | null>(null);
   const { forgotPassword } = useAuth();
 
   const handleSubmit = async () => {
-    const trimmedEmail = email.trim();
-    if (!trimmedEmail) {
+    if (!email.trim()) {
       Alert.alert('Error', 'Please enter your email address');
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(trimmedEmail)) {
-      Alert.alert('Invalid Email', 'Please enter a valid email address.');
       return;
     }
 
     setLoading(true);
     try {
-      const data = await forgotPassword(trimmedEmail.toLowerCase());
+      const data = await forgotPassword(email.trim().toLowerCase());
 
-      if (data.resetToken) {
-        // Development mode: server returned the raw token directly
-        setDevToken(data.resetToken);
-        Alert.alert(
-          'Reset Token Ready (Dev Mode)',
-          `Your reset token has been generated. Copy it from the screen and use it on the next step.\n\nToken: ${data.resetToken}`,
-          [
-            {
-              text: 'Continue to Reset',
-              onPress: () =>
-                navigation.navigate('ResetPassword', { token: data.resetToken }),
-            },
-          ],
-        );
-      } else {
-        Alert.alert(
-          'Check Your Email',
-          data.message ?? 'A reset token has been sent to your email if it exists in our system.',
-          [{ text: 'OK', onPress: () => navigation.navigate('ResetPassword') }],
-        );
-      }
+      Alert.alert(
+        'Check Your Email',
+        data.message ?? 'A reset link has been sent to your email address.',
+        [{ text: 'OK', onPress: () => navigation.navigate('Login') }],
+      );
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -114,16 +90,7 @@ export const ForgotPasswordScreen = ({ navigation }: any) => {
             </View>
           </View>
 
-          {/* Dev token display */}
-          {devToken && (
-            <View style={styles.devTokenContainer}>
-              <Text style={styles.devTokenLabel}>Dev Mode — Reset Token:</Text>
-              <Text style={styles.devTokenValue} selectable>{devToken}</Text>
-              <Text style={styles.devTokenNote}>
-                Copy this token to use on the Reset Password screen.
-              </Text>
-            </View>
-          )}
+
 
           <TouchableOpacity
             style={styles.submitButton}

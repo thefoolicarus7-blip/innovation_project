@@ -44,33 +44,16 @@ const companyProfileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-<<<<<<< HEAD
     // Verification document URLs — saved when company uploads docs for admin review
-    businessRegDocUrl: { type: String, default: undefined },
-    taxIdDocUrl:       { type: String, default: undefined },
-=======
+    businessRegDocUrl:       { type: String, default: undefined },
+    taxIdDocUrl:             { type: String, default: undefined },
+    // Verification workflow state
     verificationStatus: {
       type: String,
       enum: ["Not Verified", "Pending Review", "Verified", "Rejected"],
       default: "Not Verified",
     },
-    registrationNumber: {
-      type: String,
-      default: "",
-    },
-    businessEmail: {
-      type: String,
-      default: "",
-    },
-    verificationDocumentUrl: {
-      type: String,
-      default: "",
-    },
-    rejectionReason: {
-      type: String,
-      default: "",
-    },
->>>>>>> b7ea2f2e3dadbc4dd8ab1b0949eb33c07eb5f265
+    rejectionReason:         { type: String, default: "" },
   },
   {
     versionKey: false,

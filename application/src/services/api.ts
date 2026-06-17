@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'https://swipe2-work-ur6j.vercel.app/api'; // Dev tunnel URL
+const API_URL = 'https://innovation-project-phi.vercel.app/api'; // Dev tunnel URL
 
 const api = axios.create({
   baseURL: API_URL,
@@ -38,6 +38,10 @@ export const authService = {
     const response = await api.patch('/user/documents', docs);
     return response.data;
   },
+  forgotPassword: async (email: string) => {
+    const response = await api.post('/user/forgot-password', { email });
+    return response.data;
+  },
   logout: async () => {
     try {
       await api.post('/user/logout');
@@ -46,18 +50,6 @@ export const authService = {
     } finally {
       await AsyncStorage.removeItem('token');
     }
-  },
-  verifyEmail: async (code: string, email?: string) => {
-    const response = await api.post('/user/verify-email', { code, email });
-    return response.data;
-  },
-  resendVerification: async (email?: string) => {
-    const response = await api.post('/user/resend-verification', { email });
-    return response.data;
-  },
-  changePassword: async (currentPassword: string, newPassword: string, confirmPassword: string) => {
-    const response = await api.post('/user/change-password', { currentPassword, newPassword, confirmPassword });
-    return response.data;
   },
 };
 

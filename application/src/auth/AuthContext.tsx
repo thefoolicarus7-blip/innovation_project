@@ -23,9 +23,9 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (userData: Partial<User>) => void;
   refreshProfile: () => Promise<void>;
-  verifyEmail: (code: string, email?: string) => Promise<void>;
-  resendVerification: (email?: string) => Promise<void>;
-  changePassword: (currentPassword: string, newPassword: string, confirmPassword: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<any>;
+  verifyEmail: (code: string) => Promise<void>;
+  resendVerification: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,15 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string) => {
     const data = await authService.login(email, password);
     setUser(data.user);
-    return data.user;
   };
 
   const register = async (userData: any) => {
     const data = await authService.register(userData);
-    if (data.user && data.user.isVerified === "true") {
-      setUser(data.user);
-    }
-    return data.user || data;
+    setUser(data.user);
   };
 
   const logout = async () => {
@@ -104,21 +100,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const verifyEmail = async (code: string, email?: string) => {
-    const data = await authService.verifyEmail(code, email);
-    if (data.user) {
-      setUser(data.user);
-    } else {
-      await refreshProfile();
+  const forgotPassword = async (email: string) => {
+    return await authService.forgotPassword(email);
+  };
+
+  const verifyEmail = async (code: string) => {
+    // Mock implementation for UI since backend doesn't have the endpoint yet.
+    if (user) {
+      setUser({ ...user, isVerified: 'true' });
     }
   };
 
-  const resendVerification = async (email?: string) => {
-    await authService.resendVerification(email);
-  };
-
-  const changePassword = async (currentPassword: string, newPassword: string, confirmPassword: string) => {
-    await authService.changePassword(currentPassword, newPassword, confirmPassword);
+  const resendVerification = async () => {
+    // Mock implementation
   };
 
   return (
@@ -131,9 +125,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         logout,
         updateUser,
         refreshProfile,
+        forgotPassword,
         verifyEmail,
         resendVerification,
-        changePassword,
       }}
     >
       {children}

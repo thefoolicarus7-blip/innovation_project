@@ -313,4 +313,9 @@ const styles = StyleSheet.create({
   statusTextRefused: {
     color: '#C62828',
   },
+  noDataText: {
+    ...Typography.bodyMd,
+    color: Colors.outline,
+    textAlign: 'center',
+  },
 });
