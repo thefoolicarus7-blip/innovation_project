@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/slices/authSlice";
 import { loadUserJobs } from "../store/slices/userSlice";
+// Profile drawer — added for profile icon feature; no existing code changed
+import { UserProfileModal } from "../pages/UserProfileModal";
 
 const navItems = [
   { to: "/user/dashboard", label: "Dashboard" },
@@ -17,6 +19,8 @@ export function UserLayout() {
   const user = useAppSelector((state: any) => state.auth.user);
   const loading = useAppSelector((state: any) => state.user.jobsLoading);
   const navigate = useNavigate();
+  // Controls visibility of the profile slide-in drawer
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     if (user?.role === "User") {
@@ -82,6 +86,15 @@ export function UserLayout() {
               <h1>Welcome back, {user?.name?.split(" ")[0]}</h1>
               <p>Find your next opportunity.</p>
             </div>
+            {/* Profile icon button — opens the UserProfileModal drawer */}
+            <button
+              className="profile-icon-btn"
+              onClick={() => setProfileOpen(true)}
+              aria-label="Open profile"
+              title={`Profile: ${user?.name ?? "User"}`}
+            >
+              {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+            </button>
           </div>
         </header>
 
@@ -89,6 +102,11 @@ export function UserLayout() {
           {loading ? <p>Loading your space...</p> : <Outlet />}
         </section>
       </main>
+
+      {/* Profile slide-in drawer — rendered outside portal-main so it overlays everything */}
+      {profileOpen && (
+        <UserProfileModal onClose={() => setProfileOpen(false)} />
+      )}
     </div>
   );
 }

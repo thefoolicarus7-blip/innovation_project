@@ -1,8 +1,10 @@
-import { useEffect } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/slices/authSlice";
 import { loadPortalData } from "../store/slices/portalSlice";
+// Profile drawer — added for profile icon feature; no existing code changed
+import { EmployerProfileModal } from "../pages/EmployerProfileModal";
 
 const navItems = [
   { to: "/portal/jobs", label: "Jobs" },
@@ -18,6 +20,8 @@ export function PortalLayout() {
   const user = useAppSelector((state: any) => state.auth.user);
   const loading = useAppSelector((state: any) => state.portal.loading);
   const navigate = useNavigate();
+  // Controls visibility of the profile slide-in drawer
+  const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
     if (user?.role === "company") {
@@ -83,9 +87,18 @@ export function PortalLayout() {
               <h1>Workspace</h1>
               <p>Curate your hiring experience at Nysa.</p>
             </div>
-            <div className="chip-list">
+            <div className="chip-list" style={{ alignItems: "center" }}>
               <span className="pill">Role: {user?.role ?? "guest"}</span>
               <span className="pill">Status: Active</span>
+              {/* Profile icon button — opens the EmployerProfileModal drawer */}
+              <button
+                className="profile-icon-btn"
+                onClick={() => setProfileOpen(true)}
+                aria-label="Open company profile"
+                title={`Profile: ${user?.name ?? "Company"}`}
+              >
+                {user?.name?.charAt(0)?.toUpperCase() ?? "C"}
+              </button>
             </div>
           </div>
         </header>
@@ -94,6 +107,11 @@ export function PortalLayout() {
           {loading ? <p>Loading portal data...</p> : <Outlet />}
         </section>
       </main>
+
+      {/* Profile slide-in drawer — rendered outside portal-main so it overlays everything */}
+      {profileOpen && (
+        <EmployerProfileModal onClose={() => setProfileOpen(false)} />
+      )}
     </div>
   );
 }
