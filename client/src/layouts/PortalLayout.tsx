@@ -65,7 +65,15 @@ export function PortalLayout() {
           </div>
 
           <div className="sidebar-footer">
-            <div className="sidebar-user-card">
+            {/* Clicking the user card opens the profile panel */}
+            <div
+              className="sidebar-user-card"
+              onClick={() => setProfileOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setProfileOpen(true)}
+              style={{ cursor: "pointer" }}
+            >
               <p>{user?.name}</p>
               <small>{user?.role?.toUpperCase()}</small>
             </div>
@@ -87,18 +95,9 @@ export function PortalLayout() {
               <h1>Workspace</h1>
               <p>Curate your hiring experience at Nysa.</p>
             </div>
-            <div className="chip-list" style={{ alignItems: "center" }}>
+            <div className="chip-list">
               <span className="pill">Role: {user?.role ?? "guest"}</span>
               <span className="pill">Status: Active</span>
-              {/* Profile icon button — opens the EmployerProfileModal drawer */}
-              <button
-                className="profile-icon-btn"
-                onClick={() => setProfileOpen(true)}
-                aria-label="Open company profile"
-                title={`Profile: ${user?.name ?? "Company"}`}
-              >
-                {user?.name?.charAt(0)?.toUpperCase() ?? "C"}
-              </button>
             </div>
           </div>
         </header>

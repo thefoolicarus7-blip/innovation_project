@@ -182,7 +182,7 @@ export async function listCandidatesForCompany(
   response: Response,
 ) {
   try {
-    const items = await Candidate.find().sort({ fullName: 1 });
+    const items = await Candidate.find();
     response.status(200).json({ items });
   } catch (error) {
     response.status(500).json({ message: "Unable to list candidates" });
@@ -193,7 +193,7 @@ export async function getCandidateForCompany(
   request: AuthenticatedRequest,
   response: Response,
 ) {
-  const { candidateId } = request.params;
+  const candidateId = request.params.candidateId as string;
 
   try {
     const candidate = await Candidate.findOne({ id: candidateId });

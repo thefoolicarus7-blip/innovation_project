@@ -10,7 +10,7 @@ const ALLOWED_ACTIONS: SwipeAction[] = ["left", "right", "up"];
 
 export async function listJobs(request: AuthenticatedRequest, response: Response) {
   const userId = request.user?.userId;
-  if (!userId) {git 
+  if (!userId) {
     response.status(401).json({ message: "Unauthorized" });
     return;
   }
@@ -152,7 +152,7 @@ export async function swipeJob(request: AuthenticatedRequest, response: Response
     }
 
     const today = new Date().toISOString().split("T")[0];
-    
+
     let dailyLimit = await UserDailyLimit.findOne({ userId, date: today });
     console.log(`[Swipe] Current daily limit for ${userId} on ${today}:`, dailyLimit ? `${dailyLimit.appliedJobIds.length}/10` : "None found");
 
@@ -162,7 +162,7 @@ export async function swipeJob(request: AuthenticatedRequest, response: Response
       response.status(403).json({ message: "You have reached your daily application limit of 10 jobs." });
       return;
     }
-    
+
     // Update daily limit tracking
     console.log(`[Swipe] Updating UserDailyLimit for userId=${userId}, date=${today}`);
     dailyLimit = await UserDailyLimit.findOneAndUpdate(
@@ -182,7 +182,7 @@ export async function swipeJob(request: AuthenticatedRequest, response: Response
         response.status(403).json({ message: "Your account must be verified before you can apply for jobs." });
         return;
       }
-      
+
       // Check if already applied to prevent duplicates
       const existing = await CompanyApplication.findOne({ candidateId: userId, jobId: jobIdNum });
       if (!existing) {
@@ -230,7 +230,7 @@ export async function getUserDailyStats(request: AuthenticatedRequest, response:
 
   try {
     const dailyLimit = await UserDailyLimit.findOne({ userId, date: today });
-    
+
     response.status(200).json({
       appliedToday: dailyLimit?.appliedJobIds.length ?? 0,
       applyLimit: 10

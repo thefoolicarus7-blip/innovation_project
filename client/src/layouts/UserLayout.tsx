@@ -64,7 +64,15 @@ export function UserLayout() {
           </div>
 
           <div className="sidebar-footer">
-            <div className="sidebar-user-card">
+            {/* Clicking the user card opens the profile panel */}
+            <div
+              className="sidebar-user-card"
+              onClick={() => setProfileOpen(true)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && setProfileOpen(true)}
+              style={{ cursor: "pointer" }}
+            >
               <p>{user?.name}</p>
               <small>{user?.role?.toUpperCase()}</small>
             </div>
@@ -86,7 +94,7 @@ export function UserLayout() {
               <h1>Welcome back, {user?.name?.split(" ")[0]}</h1>
               <p>Find your next opportunity.</p>
             </div>
-            {/* Profile icon button — opens the UserProfileModal drawer */}
+            {/* Profile icon — also opens the profile drawer */}
             <button
               className="profile-icon-btn"
               onClick={() => setProfileOpen(true)}
