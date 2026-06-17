@@ -23,12 +23,24 @@ export type Job = {
   experienceLevel: string;
 };
 
+export type WorkExperience = {
+  jobTitle: string;
+  company: string;
+  startDate: string;
+  endDate?: string;
+  description?: string;
+};
+
 export type Candidate = {
   id: string;
   fullName: string;
   email: string;
   phone: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
   yearsOfExperience: number;
+  workExperiences: WorkExperience[];
   skills: string[];
   education: string;
   summary: string;

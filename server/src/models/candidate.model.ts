@@ -1,11 +1,23 @@
 import mongoose from "mongoose";
 
+export interface WorkExperienceEntry {
+  jobTitle: string;
+  company: string;
+  startDate: string;
+  endDate?: string;
+  description?: string;
+}
+
 export interface CandidateDocument extends mongoose.Document {
   id: string;
   fullName: string;
   email: string;
   phone: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
   yearsOfExperience: number;
+  workExperiences: WorkExperienceEntry[];
   skills: string[];
   education: string;
   summary: string;
@@ -17,12 +29,27 @@ interface CandidateData {
   fullName: string;
   email: string;
   phone: string;
+  dateOfBirth?: string;
+  gender?: string;
+  address?: string;
   yearsOfExperience: number;
+  workExperiences: WorkExperienceEntry[];
   skills: string[];
   education: string;
   summary: string;
   resumeUrl?: string;
 }
+
+const workExperienceSchema = new mongoose.Schema<WorkExperienceEntry>(
+  {
+    jobTitle: { type: String, required: true },
+    company: { type: String, required: true },
+    startDate: { type: String, required: true },
+    endDate: { type: String },
+    description: { type: String },
+  },
+  { _id: false },
+);
 
 const candidateSchema = new mongoose.Schema<CandidateDocument>(
   {
@@ -30,7 +57,11 @@ const candidateSchema = new mongoose.Schema<CandidateDocument>(
     fullName: { type: String, required: true },
     email: { type: String, required: true },
     phone: { type: String, required: true },
+    dateOfBirth: { type: String },
+    gender: { type: String },
+    address: { type: String },
     yearsOfExperience: { type: Number, required: true },
+    workExperiences: { type: [workExperienceSchema], default: [] },
     skills: { type: [String], default: [] },
     education: { type: String, required: true },
     summary: { type: String, required: true },
