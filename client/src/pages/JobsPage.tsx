@@ -13,6 +13,9 @@ const emptyForm: Omit<Job, "id" | "createdAt"> = {
   deadline: "",
   tags: [],
   experienceLevel: "",
+  requiredSkills: [],
+  preferredEducation: "",
+  requiredExperience: 0,
 };
 
 export function JobsPage() {
@@ -20,9 +23,10 @@ export function JobsPage() {
   const user       = useAppSelector((state: any) => state.auth.user);
   const jobs       = useAppSelector((state: any) => state.portal.jobs) as Job[];
   const analytics  = useAppSelector((state: any) => state.portal.analytics);
-  const isVerified = user?.isVerified === "true";
+  const isVerified = !!user?.isVerified;
   const [form, setForm] = useState(emptyForm);
   const [tagsInput, setTagsInput] = useState("");
+  const [skillsInput, setSkillsInput] = useState("");
 
   const openCount = useMemo(
     () => jobs.filter((job) => job.status === "Open").length,
@@ -36,9 +40,15 @@ export function JobsPage() {
       .map((tag) => tag.trim())
       .filter((tag) => tag !== "");
 
-    void dispatch(addJob({ ...form, tags: finalTags }));
+    const finalSkills = skillsInput
+      .split(",")
+      .map((skill) => skill.trim())
+      .filter((skill) => skill !== "");
+
+    void dispatch(addJob({ ...form, tags: finalTags, requiredSkills: finalSkills }));
     setForm(emptyForm);
     setTagsInput("");
+    setSkillsInput("");
   };
 
   return (
@@ -199,9 +209,41 @@ export function JobsPage() {
               <label htmlFor="job-tags">Tags (comma separated)</label>
               <input
                 id="job-tags"
-                placeholder="e.g. React, UI, Remote"
+                placeholder="e.g. Remote, Urgent, Startup"
                 value={tagsInput}
                 onChange={(e) => setTagsInput(e.target.value)}
+              />
+            </div>
+
+            <div className="field-wrap">
+              <label htmlFor="job-required-skills">Required Skills (comma separated)</label>
+              <input
+                id="job-required-skills"
+                placeholder="e.g. React, Node.js, TypeScript"
+                value={skillsInput}
+                onChange={(e) => setSkillsInput(e.target.value)}
+              />
+            </div>
+
+            <div className="field-wrap">
+              <label htmlFor="job-preferred-education">Preferred Education</label>
+              <input
+                id="job-preferred-education"
+                placeholder="e.g. Bachelor's in Computer Science"
+                value={form.preferredEducation}
+                onChange={(e) => setForm({ ...form, preferredEducation: e.target.value })}
+              />
+            </div>
+
+            <div className="field-wrap">
+              <label htmlFor="job-required-experience">Required Experience (Years)</label>
+              <input
+                id="job-required-experience"
+                type="number"
+                min="0"
+                placeholder="e.g. 3"
+                value={form.requiredExperience === 0 ? "" : form.requiredExperience}
+                onChange={(e) => setForm({ ...form, requiredExperience: Number(e.target.value) })}
               />
             </div>
 

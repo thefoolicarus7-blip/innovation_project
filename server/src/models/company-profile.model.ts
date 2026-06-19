@@ -14,23 +14,23 @@ const companyProfileSchema = new mongoose.Schema(
     },
     companyType: {
       type: String,
-      required: true,
+      default: "",
     },
     industry: {
       type: String,
-      required: true,
+      default: "",
     },
     address: {
       type: String,
-      required: true,
+      default: "",
     },
     city: {
       type: String,
-      required: true,
+      default: "",
     },
     country: {
       type: String,
-      required: true,
+      default: "",
     },
     website: {
       type: String,
@@ -38,11 +38,11 @@ const companyProfileSchema = new mongoose.Schema(
     },
     about: {
       type: String,
-      required: true,
+      default: "",
     },
     teamSize: {
       type: String,
-      required: true,
+      default: "",
     },
     // Verification document URLs — saved when company uploads docs for admin review
     businessRegDocUrl:       { type: String, default: undefined },

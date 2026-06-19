@@ -92,9 +92,12 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
     teamSize: "", address: "", city: "", country: "",
     website: "", contactPhone: "",
   });
-  const [editMode, setEditMode] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [saving,   setSaving]   = useState(false);
   const [saveMsg,  setSaveMsg]  = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const hasProfile = !!companyProfile?.companyName;
+  const showSuccessScreen = hasProfile && !isEditing;
 
   // Seed form from Redux state + localStorage whenever the panel opens
   useEffect(() => {
@@ -212,8 +215,8 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
       };
       const result = await dispatch(updateCompanyProfile(payload));
       if (updateCompanyProfile.fulfilled.match(result)) {
-        setSaveMsg({ type: "success", text: "Company profile updated." });
-        setEditMode(false);
+        setSaveMsg({ type: "success", text: "Company Profile Updated Successfully" });
+        setIsEditing(false);
       } else {
         setSaveMsg({ type: "error", text: (result.payload as string) ?? "Could not save." });
       }
@@ -222,7 +225,7 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
     } finally { setSaving(false); }
   };
 
-  const handleCancelEdit = () => {
+  const handleEditClick = () => {
     // Restore form from current Redux state
     const extra = user?.id ? loadCompanyExtra(user.id) : { contactPhone: "" };
     setForm({
@@ -236,7 +239,7 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
       website:      companyProfile?.website      ?? "",
       contactPhone: extra.contactPhone,
     });
-    setSaveMsg(null); setEditMode(false);
+    setSaveMsg(null); setIsEditing(true);
   };
 
   // ── Documents: upload handler ─────────────────────────────────────────────
@@ -311,148 +314,41 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
           {activeTab === "company" && (
             <div className="profile-section">
 
-              {/* Avatar row — click avatar to upload company logo */}
-              <input
-                ref={logoRef}
-                type="file"
-                accept=".jpg,.jpeg,.png,.webp"
-                style={{ display: "none" }}
-                onChange={handleLogoUpload}
-              />
-              <div className="profile-avatar-row">
-                <button
-                  type="button"
-                  onClick={() => logoRef.current?.click()}
-                  disabled={logoUploading}
-                  title="Change company logo"
-                  style={{ background: "none", border: "none", padding: 0, cursor: "pointer", position: "relative", flexShrink: 0 }}
-                >
-                  {logo ? (
-                    <img
-                      src={logo}
-                      alt="Company logo"
-                      className="profile-avatar"
-                      style={{ objectFit: "cover" }}
-                    />
-                  ) : (
-                    <div className="profile-avatar">{logoUploading ? "…" : initial}</div>
-                  )}
-                  <span style={{
-                    position: "absolute", bottom: 0, right: 0,
-                    background: "var(--primary)", color: "#fff",
-                    borderRadius: "50%", width: 18, height: 18,
-                    fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center",
-                    border: "2px solid var(--background)",
-                  }}>✎</span>
-                </button>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 600, fontSize: "0.95rem", marginBottom: 2 }}>
-                    {form.companyName || companyProfile?.companyName || "—"}
-                  </p>
-                  <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginBottom: 2 }}>
-                    {form.industry || companyProfile?.industry || "Company"}
-                  </p>
-                  {(form.website || companyProfile?.website) && (
-                    <p style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
-                      {form.website || companyProfile?.website}
+              {showSuccessScreen ? (
+                <>
+                  <div style={{ textAlign: "center", padding: "20px 0", borderBottom: "1px solid var(--border)", marginBottom: 24 }}>
+                    <div style={{ fontSize: "3rem", marginBottom: 16 }}>✅</div>
+                    <h3 style={{ marginBottom: 8 }}>{saveMsg?.text || "Company Profile Saved Successfully"}</h3>
+                    <p style={{ color: "var(--muted-foreground)", marginBottom: 24 }}>
+                      {saveMsg?.text ? "Your company profile has been updated." : "Your company profile has been saved."}
                     </p>
-                  )}
-                  <p style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", marginTop: 4 }}>
-                    Click logo to change
-                  </p>
-                </div>
-              </div>
-
-              {/* Feedback */}
-              {saveMsg && (
-                <div style={{
-                  padding: "10px 14px", borderRadius: "var(--radius-md)", fontSize: "0.85rem",
-                  background: saveMsg.type === "success" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
-                  border: `1px solid ${saveMsg.type === "success" ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`,
-                  color: saveMsg.type === "success" ? "var(--success)" : "var(--danger)",
-                }}>
-                  {saveMsg.text}
-                </div>
-              )}
-
-              {/* Section header with Edit / Save / Cancel */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <p className="profile-section-label" style={{ margin: 0 }}>A. Company Information</p>
-                {!editMode ? (
-                  <button className="secondary-btn" style={{ padding: "6px 14px", fontSize: "0.8rem" }}
-                    onClick={() => { setSaveMsg(null); setEditMode(true); }}>
-                    Edit
-                  </button>
-                ) : (
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button className="secondary-btn" style={{ padding: "6px 14px", fontSize: "0.8rem" }}
-                      onClick={handleCancelEdit} disabled={saving}>Cancel</button>
-                    <button className="primary-btn" style={{ padding: "6px 16px", fontSize: "0.8rem" }}
-                      onClick={handleSave} disabled={saving}>
-                      {saving ? "Saving…" : "Save"}
+                    <button className="secondary-btn" onClick={handleEditClick}>
+                      Edit Company Profile
                     </button>
                   </div>
-                )}
-              </div>
-
-              {editMode ? (
-                /* ── Edit mode: form inputs ── */
-                <div className="form-grid">
-                  {([
-                    ["co-name",  "Company Name",  "companyName",  "text", "Acme Corp"],
-                    ["co-type",  "Company Type",  "companyType",  "text", "Private Limited"],
-                    ["co-ind",   "Industry",      "industry",     "text", "Technology"],
-                    ["co-size",  "Team Size",     "teamSize",     "text", "1–10"],
-                    ["co-addr",  "Address",       "address",      "text", "123 Main St"],
-                    ["co-city",  "City",          "city",         "text", "Kathmandu"],
-                    ["co-ctry",  "Country",       "country",      "text", "Nepal"],
-                    ["co-web",   "Website",       "website",      "url",  "https://example.com"],
-                  ] as [string, string, keyof CompanyForm, string, string][]).map(([id, label, field, type, ph]) => (
-                    <div key={id} className="field-wrap">
-                      <label htmlFor={id} style={labelStyle}>{label}</label>
-                      <input
-                        id={id} type={type}
-                        value={form[field]}
-                        onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
-                        placeholder={ph}
-                      />
+                  
+                  <div style={{ display: "flex", gap: 16, alignItems: "center", marginBottom: 24 }}>
+                    {logo ? (
+                      <img src={logo} alt="Company logo" className="profile-avatar" style={{ objectFit: "cover", width: 64, height: 64 }} />
+                    ) : (
+                      <div className="profile-avatar" style={{ width: 64, height: 64 }}>{initial}</div>
+                    )}
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: "1.2rem" }}>{companyProfile?.companyName || "—"}</h3>
+                      <p style={{ margin: 0, color: "var(--muted-foreground)" }}>{companyProfile?.industry || "—"}</p>
                     </div>
-                  ))}
-
-                  {/* Contact info section */}
-                  <p className="profile-section-label" style={{ gridColumn: "1 / -1", marginBottom: 0 }}>
-                    Contact Information
-                  </p>
-
-                  <div className="field-wrap">
-                    <label style={labelStyle}>Contact Email</label>
-                    {/* Email comes from the auth account — shown read-only */}
-                    <input type="email" value={user?.email ?? ""} disabled
-                      style={{ opacity: 0.6, cursor: "not-allowed" }} />
                   </div>
 
-                  <div className="field-wrap">
-                    <label htmlFor="co-phone" style={labelStyle}>Contact Phone</label>
-                    <input id="co-phone" type="tel"
-                      value={form.contactPhone}
-                      onChange={(e) => setForm((f) => ({ ...f, contactPhone: e.target.value }))}
-                      placeholder="+977 98XXXXXXXX" />
-                  </div>
-                </div>
-              ) : (
-                /* ── View mode: info rows ── */
-                <>
-                  <div style={{ display: "grid", gap: 8 }}>
+                  <div style={{ display: "grid", gap: 12 }}>
                     {([
-                      ["Company Name", form.companyName],
-                      ["Industry",     form.industry],
-                      ["Company Type", form.companyType],
-                      ["Team Size",    form.teamSize],
-                      ["Address",      form.address],
-                      ["City",         form.city],
-                      ["Country",      form.country],
-                      ["Website",      form.website],
-                    ] as [string, string][]).map(([label, value]) => (
+                      ["Company Type", companyProfile?.companyType],
+                      ["Team Size",    companyProfile?.teamSize],
+                      ["Address",      companyProfile?.address],
+                      ["City",         companyProfile?.city],
+                      ["Country",      companyProfile?.country],
+                      ["Website",      companyProfile?.website],
+                      ["Company Description", companyProfile?.about],
+                    ] as [string, string | undefined][]).map(([label, value]) => (
                       <div key={label} className="profile-info-row">
                         <span>{label}</span>
                         <span style={{ fontWeight: 500, wordBreak: "break-all" }}>{value || "—"}</span>
@@ -460,15 +356,142 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
                     ))}
                   </div>
 
-                  <p className="profile-section-label">Contact Information</p>
-                  <div style={{ display: "grid", gap: 8 }}>
+                  <p className="profile-section-label" style={{ marginTop: 24 }}>Verification & Contact</p>
+                  <div style={{ display: "grid", gap: 12 }}>
+                    <div className="profile-info-row">
+                      <span>Company Verification</span>
+                      <span style={{ fontWeight: 500 }}>
+                        {companyProfile?.verificationStatus || "Not Submitted"}
+                      </span>
+                    </div>
                     <div className="profile-info-row">
                       <span>Contact Email</span>
-                      <span style={{ fontWeight: 500 }}>{user?.email ?? "—"}</span>
+                      <span style={{ fontWeight: 500 }}>{user?.email || "—"}</span>
                     </div>
                     <div className="profile-info-row">
                       <span>Contact Phone</span>
                       <span style={{ fontWeight: 500 }}>{form.contactPhone || "—"}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Avatar row — click avatar to upload company logo */}
+                  <input
+                    ref={logoRef}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp"
+                    style={{ display: "none" }}
+                    onChange={handleLogoUpload}
+                  />
+                  <div className="profile-avatar-row">
+                    <button
+                      type="button"
+                      onClick={() => logoRef.current?.click()}
+                      disabled={logoUploading}
+                      title="Change company logo"
+                      style={{ background: "none", border: "none", padding: 0, cursor: "pointer", position: "relative", flexShrink: 0 }}
+                    >
+                      {logo ? (
+                        <img
+                          src={logo}
+                          alt="Company logo"
+                          className="profile-avatar"
+                          style={{ objectFit: "cover" }}
+                        />
+                      ) : (
+                        <div className="profile-avatar">{logoUploading ? "…" : initial}</div>
+                      )}
+                      <span style={{
+                        position: "absolute", bottom: 0, right: 0,
+                        background: "var(--primary)", color: "#fff",
+                        borderRadius: "50%", width: 18, height: 18,
+                        fontSize: "0.65rem", display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "2px solid var(--background)",
+                      }}>✎</span>
+                    </button>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ fontWeight: 600, fontSize: "0.95rem", marginBottom: 2 }}>
+                        {form.companyName || companyProfile?.companyName || "—"}
+                      </p>
+                      <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginBottom: 2 }}>
+                        {form.industry || companyProfile?.industry || "Company"}
+                      </p>
+                      {(form.website || companyProfile?.website) && (
+                        <p style={{ fontSize: "0.78rem", color: "var(--muted)" }}>
+                          {form.website || companyProfile?.website}
+                        </p>
+                      )}
+                      <p style={{ fontSize: "0.72rem", color: "var(--muted-foreground)", marginTop: 4 }}>
+                        Click logo to change
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Feedback */}
+                  {saveMsg && (
+                    <div style={{
+                      padding: "10px 14px", borderRadius: "var(--radius-md)", fontSize: "0.85rem",
+                      background: saveMsg.type === "success" ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)",
+                      border: `1px solid ${saveMsg.type === "success" ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)"}`,
+                      color: saveMsg.type === "success" ? "var(--success)" : "var(--danger)",
+                    }}>
+                      {saveMsg.text}
+                    </div>
+                  )}
+
+                  {/* Section header with Edit / Save / Cancel */}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <p className="profile-section-label" style={{ margin: 0 }}>A. Company Information</p>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <button className="primary-btn" style={{ padding: "6px 16px", fontSize: "0.8rem" }}
+                        onClick={handleSave} disabled={saving}>
+                        {saving ? "Saving…" : "Save Company Profile"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* ── Edit mode: form inputs ── */}
+                  <div className="form-grid">
+                    {([
+                      ["co-name",  "Company Name",  "companyName",  "text", "Acme Corp"],
+                      ["co-type",  "Company Type",  "companyType",  "text", "Private Limited"],
+                      ["co-ind",   "Industry",      "industry",     "text", "Technology"],
+                      ["co-size",  "Team Size",     "teamSize",     "text", "1–10"],
+                      ["co-addr",  "Address",       "address",      "text", "123 Main St"],
+                      ["co-city",  "City",          "city",         "text", "Kathmandu"],
+                      ["co-ctry",  "Country",       "country",      "text", "Nepal"],
+                      ["co-web",   "Website",       "website",      "url",  "https://example.com"],
+                    ] as [string, string, keyof CompanyForm, string, string][]).map(([id, label, field, type, ph]) => (
+                      <div key={id} className="field-wrap">
+                        <label htmlFor={id} style={labelStyle}>{label}</label>
+                        <input
+                          id={id} type={type}
+                          value={form[field]}
+                          onChange={(e) => setForm((f) => ({ ...f, [field]: e.target.value }))}
+                          placeholder={ph}
+                        />
+                      </div>
+                    ))}
+
+                    {/* Contact info section */}
+                    <p className="profile-section-label" style={{ gridColumn: "1 / -1", marginBottom: 0 }}>
+                      Contact Information
+                    </p>
+
+                    <div className="field-wrap">
+                      <label style={labelStyle}>Contact Email</label>
+                      {/* Email comes from the auth account — shown read-only */}
+                      <input type="email" value={user?.email ?? ""} disabled
+                        style={{ opacity: 0.6, cursor: "not-allowed" }} />
+                    </div>
+
+                    <div className="field-wrap">
+                      <label htmlFor="co-phone" style={labelStyle}>Contact Phone</label>
+                      <input id="co-phone" type="tel"
+                        value={form.contactPhone}
+                        onChange={(e) => setForm((f) => ({ ...f, contactPhone: e.target.value }))}
+                        placeholder="+977 98XXXXXXXX" />
                     </div>
                   </div>
                 </>
@@ -484,20 +507,35 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
 
               <p className="profile-section-label">B. Verification Status</p>
               {(() => {
-                const isVerified  = user?.isVerified === "true";
+                const isEmailVerified  = !!user?.isVerified;
                 const hasDoc      = !!(companyProfile?.businessRegDocUrl || companyProfile?.taxIdDocUrl);
-                const companyBadge = isVerified ? "verified"
-                                   : hasDoc     ? "pending"
-                                   :              "pending";
-                const companyLabel = isVerified ? "Verified"
-                                   : hasDoc     ? "Under Review"
-                                   :              "Not Submitted";
+                const compStatus  = companyProfile?.verificationStatus || "Not Verified";
+                
+                let companyBadge = "pending";
+                let companyLabel = "Not Submitted";
+
+                if (compStatus === "Verified") {
+                  companyBadge = "verified";
+                  companyLabel = "Verified";
+                } else if (compStatus === "Pending Review") {
+                  companyBadge = "pending";
+                  companyLabel = "Under Review";
+                } else if (compStatus === "Rejected") {
+                  companyBadge = "pending"; 
+                  companyLabel = "Rejected";
+                } else {
+                  if (hasDoc) {
+                    companyBadge = "pending";
+                    companyLabel = "Under Review";
+                  }
+                }
+
                 return (
                   <div style={{ display: "grid", gap: 8 }}>
                     <div className="profile-info-row">
                       <span>Email Verification</span>
-                      <span className={`profile-status-badge ${isVerified ? "verified" : "pending"}`}>
-                        {isVerified ? "Verified" : "Pending"}
+                      <span className={`profile-status-badge ${isEmailVerified ? "verified" : "pending"}`}>
+                        {isEmailVerified ? "Verified" : "Pending"}
                       </span>
                     </div>
                     <div className="profile-info-row">
@@ -513,7 +551,7 @@ export function EmployerProfileModal({ onClose }: EmployerProfileModalProps) {
               })()}
 
               {/* Guidance note — only shown when not yet verified */}
-              {user?.isVerified !== "true" && (
+              {!user?.isVerified && (
                 <p style={{ fontSize: "0.78rem", color: "var(--muted-foreground)", lineHeight: 1.5 }}>
                   {companyProfile?.businessRegDocUrl || companyProfile?.taxIdDocUrl
                     ? "Your documents are under review. Our team will verify your company within 1–2 business days. You will be able to publish job roles once verified."

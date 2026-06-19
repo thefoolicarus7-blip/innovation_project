@@ -5,7 +5,7 @@ export type AuthUser = {
   name: string;
   email: string;
   role: UserRole;
-  isVerified?: string;
+  isVerified?: boolean;
   companyId?: string;
   token?: string;
 };
@@ -21,6 +21,9 @@ export type Job = {
   deadline: string;
   tags: string[];
   experienceLevel: string;
+  requiredSkills: string[];
+  preferredEducation: string;
+  requiredExperience: number;
 };
 
 export type WorkExperience = {
@@ -70,6 +73,7 @@ export type CompanyProfile = {
   // Verification document URLs — persisted to DB so admin can review
   businessRegDocUrl?: string;
   taxIdDocUrl?: string;
+  verificationStatus?: string;
 };
 
 export type CompanyAnalytics = {

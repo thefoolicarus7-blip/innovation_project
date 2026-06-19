@@ -7,7 +7,8 @@ export interface UserDocument extends mongoose.Document {
   lastName: string;
   email: string;
   password: string;
-  isVerified: string;
+  isVerified: boolean;
+  isOTPverified?: boolean;
   role: UserRole;
   cvUrl?: string;
   idUrl?: string;
@@ -25,7 +26,8 @@ const userSchema = new mongoose.Schema<UserDocument>(
     lastName: { type: String, required: true },
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
-    isVerified: { type: String, required: true, default: "false" },
+    isVerified: { type: Boolean, required: true, default: false },
+    isOTPverified: { type: Boolean, default: false },
     role: {
       type: String,
       required: true,

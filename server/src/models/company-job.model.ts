@@ -48,6 +48,19 @@ const companyJobSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    requiredSkills: {
+      type: [String],
+      default: [],
+    },
+    preferredEducation: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    requiredExperience: {
+      type: Number,
+      default: 0,
+    },
     experienceLevel: {
       type: String,
       required: true,

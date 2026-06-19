@@ -96,7 +96,7 @@ export function RegisterPage() {
       registerCompanyAccount({ firstName, lastName, email: email.trim(), password }),
     );
     if (registerCompanyAccount.fulfilled.match(resultAction)) {
-      if (resultAction.payload?.user?.isVerified === "true") {
+      if (resultAction.payload?.isVerified) {
         navigate("/");
       } else {
         navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
