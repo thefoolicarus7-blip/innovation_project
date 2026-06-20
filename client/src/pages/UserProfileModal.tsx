@@ -160,7 +160,7 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
 
   // ── Derived values ────────────────────────────────────────────────────────
   const filledFields = [form.fullName, form.email, form.phone, form.address, form.dateOfBirth, form.photo].filter(Boolean).length;
-  const completionPct = Math.min(100, Math.round((filledFields / 6) * 80) + (user?.isVerified === "true" ? 20 : 0));
+  const completionPct = Math.min(100, Math.round((filledFields / 6) * 80) + (user?.isVerified ? 20 : 0));
   const initial = form.fullName?.charAt(0)?.toUpperCase() || user?.name?.charAt(0)?.toUpperCase() || "U";
 
   const goTo = (path: string) => { onClose(); navigate(path); };
@@ -463,8 +463,8 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
               <div style={{ display: "grid", gap: 8 }}>
                 <div className="profile-info-row">
                   <span>Email Verification</span>
-                  <span className={`profile-status-badge ${user?.isVerified === "true" ? "verified" : "pending"}`}>
-                    {user?.isVerified === "true" ? "Verified" : "Pending"}
+                  <span className={`profile-status-badge ${user?.isVerified ? "verified" : "pending"}`}>
+                    {user?.isVerified ? "Verified" : "Pending"}
                   </span>
                 </div>
                 <div className="profile-info-row">

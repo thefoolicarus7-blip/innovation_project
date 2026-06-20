@@ -65,7 +65,7 @@ export async function loginCompany(
       email: string;
       role: "company";
       companyId: string;
-      isVerified: string;
+      isVerified: boolean;
     };
   }>("/user/company-login", {
     method: "POST",
@@ -92,6 +92,7 @@ export async function registerCompany(data: any): Promise<CompanyLoginPayload> {
       lastName: string;
       email: string;
       role: "company";
+      isVerified: boolean;
     };
   }>("/user/register", {
     method: "POST",
@@ -105,6 +106,7 @@ export async function registerCompany(data: any): Promise<CompanyLoginPayload> {
       email: payload.user.email,
       role: "company",
       companyId: payload.user.id,
+      isVerified: payload.user.isVerified,
     },
   };
 }

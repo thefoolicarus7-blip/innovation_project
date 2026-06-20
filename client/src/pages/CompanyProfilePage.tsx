@@ -26,7 +26,9 @@ export function CompanyProfilePage() {
     companyProfile ?? emptyProfile,
   );
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
-  const [profileSaved, setProfileSaved] = useState(false);
+  const hasProfile = !!companyProfile?.companyName;
+  const [isEditing, setIsEditing] = useState(false);
+  const showSuccessScreen = hasProfile && !isEditing;
 
   useEffect(() => {
     if (companyProfile) {
@@ -40,7 +42,7 @@ export function CompanyProfilePage() {
     try {
       await dispatch(updateCompanyProfile(form)).unwrap();
       setSaveStatus("idle");
-      setProfileSaved(true);
+      setIsEditing(false);
     } catch {
       setSaveStatus("error");
     }
@@ -89,11 +91,11 @@ export function CompanyProfilePage() {
           branding details.
         </p>
 
-        {profileSaved ? (
+        {showSuccessScreen ? (
           <div className="profile-saved-state">
             <div className="profile-saved-icon">✅</div>
             <h3 className="profile-saved-title">
-              Company Profile Saved Successfully
+              {saveStatus === "idle" && hasProfile ? "Company Profile Saved Successfully" : "Company Profile Saved Successfully"}
             </h3>
             <p className="profile-saved-subtitle">
               Your company profile has been saved.
@@ -101,10 +103,28 @@ export function CompanyProfilePage() {
             <button
               type="button"
               className="primary-btn"
-              onClick={() => setProfileSaved(false)}
+              onClick={() => setIsEditing(true)}
             >
               Edit Company Profile
             </button>
+            <div style={{ marginTop: 24, textAlign: "left", display: "grid", gap: 12 }}>
+              {([
+                ["Company Name", companyProfile?.companyName],
+                ["Company Type", companyProfile?.companyType],
+                ["Industry", companyProfile?.industry],
+                ["Team Size", companyProfile?.teamSize],
+                ["Address", companyProfile?.address],
+                ["City", companyProfile?.city],
+                ["Country", companyProfile?.country],
+                ["Website", companyProfile?.website],
+                ["Verification", companyProfile?.verificationStatus || "Not Submitted"]
+              ] as [string, string | undefined][]).map(([label, value]) => (
+                <div key={label} style={{ display: "flex", justifyContent: "space-between", paddingBottom: 8, borderBottom: "1px solid var(--border)" }}>
+                  <span style={{ color: "var(--muted-foreground)" }}>{label}</span>
+                  <span style={{ fontWeight: 500 }}>{value || "—"}</span>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <form className="pretty-form form-grid" onSubmit={handleSubmit}>

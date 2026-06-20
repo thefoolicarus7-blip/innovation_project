@@ -115,7 +115,7 @@ export async function registerUser(request: Request, response: Response) {
       lastName,
       email: normalizedEmail,
       password: hashedPassword,
-      isVerified: IS_DEVELOPMENT ? "true" : "false",
+      isVerified: false,
       role: (role ?? "User") as "User" | "Admin" | "company",
       skills: [],
       verificationCode: otp,
@@ -141,6 +141,7 @@ export async function registerUser(request: Request, response: Response) {
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         isVerified: user.isVerified,
+        isOTPverified: user.isOTPverified,
         role: user.role,
       },
     });
@@ -180,7 +181,7 @@ export async function loginUser(request: Request, response: Response) {
       return;
     }
 
-    if (user.isVerified !== "true") {
+    if (!user.isVerified && !user.isOTPverified) {
       response.status(403).json({
         message: "Email not verified",
         email: user.email,
@@ -199,6 +200,7 @@ export async function loginUser(request: Request, response: Response) {
         lastName: user.lastName,
         email: user.email,
         isVerified: user.isVerified,
+        isOTPverified: user.isOTPverified,
         role: user.role,
         name: `${user.firstName} ${user.lastName}`,
       },
@@ -237,7 +239,7 @@ export async function loginCompanyUser(request: Request, response: Response) {
       return;
     }
 
-    if (user.isVerified !== "true") {
+    if (!user.isVerified && !user.isOTPverified) {
       response.status(403).json({
         message: "Email not verified",
         email: user.email,
@@ -256,6 +258,7 @@ export async function loginCompanyUser(request: Request, response: Response) {
         email: user.email,
         role: user.role,
         isVerified: user.isVerified,
+        isOTPverified: user.isOTPverified,
         companyId: user.role === "company" ? String(user._id) : undefined,
       },
     });
@@ -431,6 +434,7 @@ export async function getMyProfile(
         name: `${user.firstName} ${user.lastName}`,
         email: user.email,
         isVerified: user.isVerified,
+        isOTPverified: user.isOTPverified,
         role: user.role,
         cvUrl: user.cvUrl,
         idUrl: user.idUrl,
@@ -532,26 +536,20 @@ export async function saveMyCV(
       summary?: string;
     };
 
-  if (!fullName || !email || !phone || yearsOfExperience === undefined || !education || !summary) {
-    response.status(400).json({
-      message: "fullName, email, phone, yearsOfExperience, education and summary are required",
-    });
-    return;
-  }
-
   try {
+    const parsedYoe = Number(yearsOfExperience);
     const candidate = await Candidate.upsert(userId, {
-      fullName,
-      email,
-      phone,
+      fullName: fullName ?? "",
+      email: email ?? "",
+      phone: phone ?? "",
       dateOfBirth,
       gender,
       address,
-      yearsOfExperience: Number(yearsOfExperience),
+      yearsOfExperience: !isNaN(parsedYoe) ? parsedYoe : 0,
       workExperiences: Array.isArray(workExperiences) ? workExperiences : [],
       skills: Array.isArray(skills) ? skills : [],
-      education,
-      summary,
+      education: education ?? "",
+      summary: summary ?? "",
     });
 
     // Also update the user's skills so job matching works
@@ -628,7 +626,7 @@ export async function verifyEmail(request: Request, response: Response) {
       return;
     }
 
-    if (user.isVerified === "true") {
+    if (user.isOTPverified) {
       response.status(200).json({ message: "Email is already verified" });
       return;
     }
@@ -643,7 +641,8 @@ export async function verifyEmail(request: Request, response: Response) {
       return;
     }
 
-    user.isVerified = "true";
+    user.isVerified = true;
+    user.isOTPverified = true;
     user.verificationCode = undefined;
     user.verificationCodeExpiry = undefined;
     await user.save();
@@ -672,7 +671,7 @@ export async function resendVerificationCode(request: Request, response: Respons
       return;
     }
 
-    if (user.isVerified === "true") {
+    if (user.isVerified || user.isOTPverified) {
       response.status(400).json({ message: "Email is already verified" });
       return;
     }

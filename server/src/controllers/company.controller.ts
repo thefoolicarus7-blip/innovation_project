@@ -248,19 +248,8 @@ export async function saveProfileForCompany(
 
   const profileData = request.body as Partial<CompanyProfile>;
 
-  if (
-    !profileData.companyName ||
-    !profileData.companyType ||
-    !profileData.industry ||
-    !profileData.address ||
-    !profileData.city ||
-    !profileData.country ||
-    !profileData.about ||
-    !profileData.teamSize
-  ) {
-    response.status(400).json({
-      message: "Required fields are missing",
-    });
+  if (!profileData.companyName) {
+    response.status(400).json({ message: "Company Name is required" });
     return;
   }
 

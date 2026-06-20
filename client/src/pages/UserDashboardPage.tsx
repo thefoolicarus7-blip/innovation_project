@@ -1,12 +1,24 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { applyToJobThunk } from "../store/slices/userSlice";
+import { applyToJobThunk, loadMyCv } from "../store/slices/userSlice";
+import { calculateJobScore } from "../utils/jobMatch";
+import type { Job, Candidate } from "../types";
 
 export function UserDashboardPage() {
   const dispatch = useAppDispatch();
   const jobs = useAppSelector((state: any) => state.user.suggestedJobs);
   const dailyStats = useAppSelector((state: any) => state.user.dailyStats);
   const applications = useAppSelector((state: any) => state.user.applications);
+  const cv = useAppSelector((state: any) => state.user.cv) as Candidate | null;
+  const cvLoading = useAppSelector((state: any) => state.user.cvLoading);
+
+  const [expandedJobId, setExpandedJobId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!cv && !cvLoading) {
+      void dispatch(loadMyCv());
+    }
+  }, [cv, cvLoading, dispatch]);
 
   const appliedJobIds = useMemo(() => {
     return applications.map((app: any) => app.jobId);
@@ -78,10 +90,21 @@ export function UserDashboardPage() {
             gap: "24px",
           }}
         >
-          {jobs?.map((job: any, index: number) => {
+          {jobs?.map((job: Job, index: number) => {
             const hasApplied = appliedJobIds.includes(job.id);
             const isLimitReached =
               dailyStats && dailyStats.appliedToday >= dailyStats.applyLimit;
+
+            const matchResult = calculateJobScore(cv, job);
+            let badgeColor = "var(--danger)";
+            let badgeBg = "rgba(239, 68, 68, 0.1)";
+            if (matchResult.score >= 80) {
+              badgeColor = "#006C4A";
+              badgeBg = "rgba(0, 108, 74, 0.1)";
+            } else if (matchResult.score >= 60) {
+              badgeColor = "#B45309";
+              badgeBg = "rgba(245, 158, 11, 0.1)";
+            }
 
             return (
               <div
@@ -106,11 +129,11 @@ export function UserDashboardPage() {
                       {job.location} • {job.employmentType}
                     </p>
                   </div>
-                  {job.match && (
+                  <div style={{ cursor: "pointer" }} onClick={() => setExpandedJobId(expandedJobId === job.id ? null : job.id)}>
                     <span
                       style={{
-                        background: "rgba(0, 108, 74, 0.1)",
-                        color: "#006C4A",
+                        background: badgeBg,
+                        color: badgeColor,
                         fontSize: "0.85rem",
                         fontWeight: "600",
                         whiteSpace: "nowrap",
@@ -118,10 +141,27 @@ export function UserDashboardPage() {
                         borderRadius: "12px",
                       }}
                     >
-                      {job.match} Match
+                      {matchResult.score}% Match
                     </span>
-                  )}
+                  </div>
                 </div>
+
+                {expandedJobId === job.id && (
+                  <div style={{ padding: "12px", background: "var(--bg)", borderRadius: "8px", fontSize: "0.85rem" }}>
+                    <div style={{ marginBottom: "8px" }}>
+                      <strong>Matched Skills:</strong> {matchResult.matchedSkills.length > 0 ? matchResult.matchedSkills.join(", ") : "None"}
+                    </div>
+                    <div style={{ marginBottom: "8px" }}>
+                      <strong>Missing Skills:</strong> {matchResult.missingSkills.length > 0 ? matchResult.missingSkills.join(", ") : "None"}
+                    </div>
+                    <div style={{ marginBottom: "8px" }}>
+                      <strong>Education Match:</strong> {matchResult.educationMatch ? "Yes" : "No"}
+                    </div>
+                    <div>
+                      <strong>Experience Match:</strong> {matchResult.experienceMatch ? "Yes" : "No"}
+                    </div>
+                  </div>
+                )}
 
                 <div className="tag-cloud">
                   {job.tags?.map((tag: string) => (

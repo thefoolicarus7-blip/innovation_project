@@ -190,7 +190,7 @@ const authSlice = createSlice({
     },
     setUserVerified(state) {
       if (state.user) {
-        state.user.isVerified = "true";
+        state.user.isVerified = true;
       }
     },
   },

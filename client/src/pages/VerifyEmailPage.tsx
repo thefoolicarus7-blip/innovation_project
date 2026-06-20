@@ -21,7 +21,7 @@ export function VerifyEmailPage() {
   const emailToVerify = user?.email || emailParam;
 
   // Already verified — send to the right dashboard
-  if (user && user.isVerified === "true") {
+  if (user && user.isVerified) {
     const role = user.role?.toLowerCase();
     if (role === "admin") return <Navigate to="/admin" replace />;
     if (role === "company") return <Navigate to="/portal/jobs" replace />;

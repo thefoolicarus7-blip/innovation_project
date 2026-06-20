@@ -92,7 +92,7 @@ export function UserRegisterPage() {
       }),
     );
     if (registerNormalUserAccount.fulfilled.match(resultAction)) {
-      if (resultAction.payload?.user?.isVerified === "true") {
+      if (resultAction.payload?.isVerified) {
         navigate("/");
       } else {
         navigate(`/verify-email?email=${encodeURIComponent(email.trim())}`);
