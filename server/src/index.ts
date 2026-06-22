@@ -152,3 +152,4 @@ if (isMainModule) {
 }
 
 export default app;
+// Trigger restart
