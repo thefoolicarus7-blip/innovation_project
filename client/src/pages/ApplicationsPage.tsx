@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
+  loadPortalData,
   patchApplicationStatusAsync,
   updateApplicationStatus,
 } from "../store/slices/portalSlice";
@@ -19,6 +20,8 @@ export function ApplicationsPage() {
   const applications = useAppSelector(
     (state: any) => state.portal.applications,
   ) as JobApplication[];
+  const loading = useAppSelector((state: any) => state.portal.loading) as boolean;
+  const error = useAppSelector((state: any) => state.portal.error) as string | null;
 
   const total = applications.length;
   const shortlist = useMemo(
@@ -81,8 +84,21 @@ export function ApplicationsPage() {
       <section className="panel">
         <div className="section-head">
           <h2>Active Applications</h2>
-          <span className="pill">Real-time Sync</span>
+          <button
+            className="secondary-btn"
+            onClick={() => void dispatch(loadPortalData())}
+            disabled={loading}
+            style={{ fontSize: "0.85rem" }}
+          >
+            {loading ? "Refreshing…" : "Refresh"}
+          </button>
         </div>
+
+        {error && (
+          <p style={{ color: "var(--danger)", fontSize: "0.88rem", marginBottom: "12px" }}>
+            Failed to load applications. Try refreshing.
+          </p>
+        )}
 
         <div className="table-wrapper">
           <table>
@@ -96,6 +112,13 @@ export function ApplicationsPage() {
               </tr>
             </thead>
             <tbody>
+              {applications.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: "center", color: "var(--muted)", padding: "32px" }}>
+                    No applications yet. Once candidates apply to your jobs, they will appear here.
+                  </td>
+                </tr>
+              )}
               {applications.map((application) => (
                 <tr key={application.id}>
                   <td>

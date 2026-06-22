@@ -45,7 +45,7 @@ export const loadPortalData = createAsyncThunk(
   "portal/loadPortalData",
   async () => {
     const [jobs, applications, candidates, companyProfile, analytics] =
-      await Promise.all([
+      await Promise.allSettled([
         getCompanyJobs(),
         getApplications(),
         getCandidates(),
@@ -53,7 +53,13 @@ export const loadPortalData = createAsyncThunk(
         getCompanyAnalytics(),
       ]);
 
-    return { jobs, applications, candidates, companyProfile, analytics };
+    return {
+      jobs:          jobs.status          === "fulfilled" ? jobs.value          : [],
+      applications:  applications.status  === "fulfilled" ? applications.value  : [],
+      candidates:    candidates.status    === "fulfilled" ? candidates.value    : [],
+      companyProfile: companyProfile.status === "fulfilled" ? companyProfile.value : null,
+      analytics:     analytics.status     === "fulfilled" ? analytics.value     : null,
+    };
   },
 );
 
