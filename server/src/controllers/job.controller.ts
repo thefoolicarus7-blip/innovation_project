@@ -58,12 +58,14 @@ export async function listJobs(request: AuthenticatedRequest, response: Response
       });
 
       // 3. Filter for high relevance (score > 0) and sort
-      // To strictly follow "80% score" logic, we only show jobs that have a meaningful match.
-      // If a user has 7 skills, an 80% match would be very rare, 
-      // so we prioritize jobs with any positive matching score.
-      const highRelevanceJobs = scoredJobs
+      let highRelevanceJobs = scoredJobs
         .filter((sj) => sj.score > 0)
         .sort((a, b) => b.score - a.score);
+
+      // If we don't have any relevant jobs (e.g. no skills set), just show all potential jobs
+      if (highRelevanceJobs.length === 0) {
+        highRelevanceJobs = scoredJobs;
+      }
 
       // 4. Take the results (no longer filling with random jobs)
       const suggestedJobs = highRelevanceJobs.map((sj) => sj.job);
@@ -86,20 +88,6 @@ export async function listJobs(request: AuthenticatedRequest, response: Response
     let items = await CompanyJob.find({
       id: { $in: dailyLimit.suggestedJobIds, $nin: dailyLimit.appliedJobIds },
       status: "Open"
-    });
-
-    // CRITICAL FIX: If we have items but they all have 0 score (due to old logic), 
-    // we must filter them out now to enforce the "strict relevance" rule.
-    const user = await User.findById(userId);
-    const userSkillsLower = (user?.skills || []).map((s: string) => s.toLowerCase());
-
-    items = items.filter(job => {
-      const jobTagsLower = job.tags.map((t: string) => t.toLowerCase());
-      const jobTitleLower = job.title.toLowerCase();
-
-      return userSkillsLower.some((skill: string) =>
-        jobTagsLower.includes(skill) || jobTitleLower.includes(skill)
-      );
     });
 
     response.status(200).json({
@@ -177,7 +165,7 @@ export async function swipeJob(request: AuthenticatedRequest, response: Response
       console.log(`[Swipe] Processing application (Right/Up) for jobId=${jobIdNum}`);
       const user = await User.findById(userId);
 
-      if (user?.isVerified !== "true") {
+      if (user?.isVerified !== true) {
         console.warn(`[Swipe] Forbidden: User ${userId} is not verified`);
         response.status(403).json({ message: "Your account must be verified before you can apply for jobs." });
         return;

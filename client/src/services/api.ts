@@ -296,10 +296,10 @@ export async function getUserJobs() {
 
 export async function applyToJob(jobId: number) {
   const payload = await apiRequest<{ application: UserApplication }>(
-    `/job/${jobId}/swipe`,
+    `/job/swipe`,
     {
       method: "POST",
-      body: JSON.stringify({ action: "right" }),
+      body: JSON.stringify({ jobId, action: "right" }),
     },
   );
   return payload;

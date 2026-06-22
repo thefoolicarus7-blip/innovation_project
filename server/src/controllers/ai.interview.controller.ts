@@ -13,7 +13,7 @@ export const setupInterviewSocket = (io: Server) => {
   }
 
   const client = new OpenAI({
-    apiKey: apiKey || "",
+    apiKey: apiKey || "dummy_key",
     baseURL: "https://integrate.api.nvidia.com/v1",
   });
 

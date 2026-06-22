@@ -79,8 +79,8 @@ const Candidate = {
     return CandidateModel.findOne(query).exec();
   },
 
-  async find(): Promise<CandidateDocument[]> {
-    return CandidateModel.find().sort({ fullName: 1 }).exec();
+  async find(query: any = {}): Promise<CandidateDocument[]> {
+    return CandidateModel.find(query).sort({ fullName: 1 }).exec();
   },
 
   async upsert(

@@ -65,7 +65,7 @@ export async function createJobForCompany(
   // Verification gate — only verified companies may publish job roles
   try {
     const companyUser = await User.findById(userId);
-    if (!companyUser || companyUser.isVerified !== "true") {
+    if (!companyUser || companyUser.isVerified !== true) {
       response.status(403).json({
         message:
           "Company verification required. Please upload valid business registration documents before publishing job roles.",
@@ -195,11 +195,17 @@ export async function patchApplicationStatus(
 }
 
 export async function listCandidatesForCompany(
-  _request: AuthenticatedRequest,
+  request: AuthenticatedRequest,
   response: Response,
 ) {
+  const userId = getAuthorizedUserId(request, response);
+  if (!userId) return;
+
   try {
-    const items = await Candidate.find();
+    const applications = await CompanyApplication.find({ ownerId: userId });
+    const candidateIds = [...new Set(applications.map(app => app.candidateId))];
+
+    const items = await Candidate.find({ id: { $in: candidateIds } });
     response.status(200).json({ items });
   } catch (error) {
     response.status(500).json({ message: "Unable to list candidates" });
