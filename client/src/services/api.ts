@@ -123,7 +123,7 @@ export async function getCompanyJobs(): Promise<Job[]> {
 }
 
 export async function createCompanyJob(
-  input: Omit<Job, "id" | "createdAt">,
+  input: Omit<Job, "_id" | "id" | "ownerId" | "createdAt">,
 ): Promise<Job> {
   const payload = await apiRequest<{ item: Job }>("/company/jobs", {
     method: "POST",
@@ -294,12 +294,12 @@ export async function getUserJobs() {
   return payload;
 }
 
-export async function applyToJob(jobId: number) {
+export async function applyToJob(jobId: number, jobMongoId: string) {
   const payload = await apiRequest<{ application: UserApplication }>(
     `/job/swipe`,
     {
       method: "POST",
-      body: JSON.stringify({ jobId, action: "right" }),
+      body: JSON.stringify({ jobId, jobMongoId, action: "right" }),
     },
   );
   return payload;

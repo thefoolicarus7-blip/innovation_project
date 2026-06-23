@@ -11,7 +11,9 @@ export type AuthUser = {
 };
 
 export type Job = {
+  _id: string;
   id: number;
+  ownerId: string;
   title: string;
   location: string;
   employmentType: "Full-time" | "Part-time" | "Contract" | "Remote";
@@ -97,6 +99,7 @@ export type UserDailyStats = {
 export type UserApplication = {
   _id: string;
   id: string;
+  ownerId: string;
   jobId: number;
   candidateId: string;
   candidateName: string;

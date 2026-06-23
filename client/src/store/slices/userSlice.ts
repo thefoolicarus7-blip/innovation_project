@@ -22,6 +22,7 @@ type UserState = {
   cvLoading: boolean;
   cvSaving: boolean;
   error: string | null;
+  applyError: string | null;
 };
 
 const initialState: UserState = {
@@ -34,6 +35,7 @@ const initialState: UserState = {
   cvLoading: false,
   cvSaving: false,
   error: null,
+  applyError: null,
 };
 
 export const loadUserJobs = createAsyncThunk("user/loadUserJobs", async () => {
@@ -43,9 +45,9 @@ export const loadUserJobs = createAsyncThunk("user/loadUserJobs", async () => {
 
 export const applyToJobThunk = createAsyncThunk(
   "user/applyToJobThunk",
-  async (jobId: number, { rejectWithValue }) => {
+  async ({ jobId, jobMongoId }: { jobId: number; jobMongoId: string }, { rejectWithValue }) => {
     try {
-      const payload = await applyToJob(jobId);
+      const payload = await applyToJob(jobId, jobMongoId);
       return payload.application;
     } catch (error) {
       const message =
@@ -102,14 +104,19 @@ const userSlice = createSlice({
             ? action.payload
             : "Failed to load jobs";
       })
+      .addCase(applyToJobThunk.pending, (state) => {
+        state.applyError = null;
+      })
       .addCase(applyToJobThunk.fulfilled, (state, action) => {
-        state.applications = [action.payload, ...state.applications];
+        if (action.payload) {
+          state.applications = [action.payload, ...state.applications];
+        }
         if (state.dailyStats) {
           state.dailyStats.appliedToday += 1;
         }
       })
       .addCase(applyToJobThunk.rejected, (state, action) => {
-        state.error =
+        state.applyError =
           typeof action.payload === "string"
             ? action.payload
             : "Failed to apply";

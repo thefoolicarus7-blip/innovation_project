@@ -27,8 +27,12 @@ const ALLOWED_ORIGINS = (
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (e.g. curl, Postman, server-to-server)
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    if (!origin) {
+      callback(null, true);
+    } else if (ALLOWED_ORIGINS.includes(origin)) {
+      callback(null, true);
+    } else if (process.env.NODE_ENV === "development" && /^http:\/\/localhost(:\d+)?$/.test(origin)) {
+      // Allow any localhost port in development so Vite port changes never break auth
       callback(null, true);
     } else {
       callback(new Error(`CORS: origin '${origin}' not allowed`));
@@ -67,6 +71,7 @@ app.get("/api", (_request: Request, response: Response) => {
     version: "1.0.0",
   });
 });
+
 
 app.use("/api/user", userRouter);
 app.use("/api/users", userRouter);

@@ -29,6 +29,7 @@ type PortalState = {
   analytics: CompanyAnalytics | null;
   loading: boolean;
   error: string | null;
+  addJobError: string | null;
 };
 
 const initialState: PortalState = {
@@ -39,6 +40,7 @@ const initialState: PortalState = {
   analytics: null,
   loading: false,
   error: null,
+  addJobError: null,
 };
 
 export const loadPortalData = createAsyncThunk(
@@ -65,7 +67,7 @@ export const loadPortalData = createAsyncThunk(
 
 export const addJob = createAsyncThunk(
   "portal/addJob",
-  async (input: Omit<Job, "id" | "createdAt">) => {
+  async (input: Omit<Job, "_id" | "id" | "ownerId" | "createdAt">) => {
     return createCompanyJob(input);
   },
 );
@@ -123,15 +125,20 @@ const portalSlice = createSlice({
         state.companyProfile = action.payload.companyProfile;
         state.analytics = action.payload.analytics;
       })
-      .addCase(loadPortalData.rejected, (state) => {
+      .addCase(loadPortalData.rejected, (state, action) => {
         state.loading = false;
-        state.error = "Failed to load portal data.";
+        state.error = action.error?.message ?? "Failed to load portal data.";
+      })
+      .addCase(addJob.pending, (state) => {
+        state.addJobError = null;
       })
       .addCase(addJob.fulfilled, (state, action) => {
+        state.addJobError = null;
         state.jobs = [action.payload, ...state.jobs];
       })
-      .addCase(addJob.rejected, (state) => {
-        state.error = "Unable to create job.";
+      .addCase(addJob.rejected, (state, action) => {
+        state.addJobError =
+          action.error?.message ?? "Unable to create job. Check that your company is verified.";
       })
       .addCase(patchApplicationStatusAsync.fulfilled, (state, action) => {
         const target = state.applications.find(

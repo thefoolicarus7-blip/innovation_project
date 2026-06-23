@@ -122,12 +122,10 @@ export async function registerUser(request: Request, response: Response) {
       verificationCodeExpiry: otpExpiry,
     });
 
-    // 3. Send verification email
-    try {
-      await sendVerificationEmail(normalizedEmail, otp);
-    } catch (emailError) {
+    // 3. Send verification email (fire-and-forget — don't block the response)
+    sendVerificationEmail(normalizedEmail, otp).catch((emailError) => {
       console.error("[register] failed to send verification email:", emailError);
-    }
+    });
 
     const token = signAuthToken(String(user._id), user.email, user.role);
     setAuthCookie(response, token);
@@ -296,7 +294,9 @@ export async function forgotPassword(request: Request, response: Response) {
     await user.save();
 
     console.debug(`[auth] generated reset token for ${normalizedEmail}: ${rawToken}`);
-    await sendPasswordResetEmail(normalizedEmail, rawToken);
+    sendPasswordResetEmail(normalizedEmail, rawToken).catch((err) => {
+      console.error("[auth] failed to send password reset email:", err);
+    });
 
     response.status(200).json({
       message: "Password reset instructions have been sent to your email.",
@@ -339,7 +339,9 @@ export async function forgotCompanyPassword(request: Request, response: Response
     await user.save();
 
     console.debug(`[auth] generated reset token for company ${normalizedEmail}: ${rawToken}`);
-    await sendPasswordResetEmail(normalizedEmail, rawToken, "company/reset-password");
+    sendPasswordResetEmail(normalizedEmail, rawToken, "company/reset-password").catch((err) => {
+      console.error("[auth] failed to send company password reset email:", err);
+    });
 
     response.status(200).json({
       message: "Password reset instructions have been sent to your email.",

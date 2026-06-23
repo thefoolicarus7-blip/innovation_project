@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/slices/authSlice";
-import { loadUserJobs } from "../store/slices/userSlice";
 // Profile drawer — added for profile icon feature; no existing code changed
 import { UserProfileModal } from "../pages/UserProfileModal";
 
@@ -17,16 +16,9 @@ const navItems = [
 export function UserLayout() {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state: any) => state.auth.user);
-  const loading = useAppSelector((state: any) => state.user.jobsLoading);
   const navigate = useNavigate();
   // Controls visibility of the profile slide-in drawer
   const [profileOpen, setProfileOpen] = useState(false);
-
-  useEffect(() => {
-    if (user?.role === "User") {
-      void dispatch(loadUserJobs());
-    }
-  }, [dispatch, user?.role]);
 
   const handleLogout = () => {
     dispatch(logoutUser());
@@ -107,7 +99,7 @@ export function UserLayout() {
         </header>
 
         <section className="portal-content">
-          {loading ? <p>Loading your space...</p> : <Outlet />}
+          <Outlet />
         </section>
       </main>
 

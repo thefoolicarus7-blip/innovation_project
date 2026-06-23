@@ -74,7 +74,7 @@ export async function verifyUser(request: Request, response: Response) {
       return;
     }
 
-    user.isVerified = "true";
+    user.isVerified = true;
 
     // If it's a standard user and they have a CV, extract skills
     if (user.role === "User" && user.cvUrl) {

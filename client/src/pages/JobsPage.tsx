@@ -4,7 +4,21 @@ import { addJob } from "../store/slices/portalSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import type { Job } from "../types";
 
-const emptyForm: Omit<Job, "id" | "createdAt"> = {
+type JobFormData = {
+  title: string;
+  location: string;
+  employmentType: Job["employmentType"];
+  salaryRange: string;
+  status: Job["status"];
+  deadline: string;
+  tags: string[];
+  experienceLevel: string;
+  requiredSkills: string[];
+  preferredEducation: string;
+  requiredExperience: number;
+};
+
+const emptyForm: JobFormData = {
   title: "",
   location: "",
   employmentType: "Full-time",
@@ -19,11 +33,13 @@ const emptyForm: Omit<Job, "id" | "createdAt"> = {
 };
 
 export function JobsPage() {
-  const dispatch   = useAppDispatch();
-  const user       = useAppSelector((state: any) => state.auth.user);
-  const jobs       = useAppSelector((state: any) => state.portal.jobs) as Job[];
-  const analytics  = useAppSelector((state: any) => state.portal.analytics);
-  const isVerified = !!user?.isVerified;
+  const dispatch     = useAppDispatch();
+  const user         = useAppSelector((state: any) => state.auth.user);
+  const jobs         = useAppSelector((state: any) => state.portal.jobs) as Job[];
+  const analytics    = useAppSelector((state: any) => state.portal.analytics);
+  const addJobError  = useAppSelector((state: any) => state.portal.addJobError) as string | null;
+  const portalError  = useAppSelector((state: any) => state.portal.error) as string | null;
+  const isVerified   = !!user?.isVerified;
   const [form, setForm] = useState(emptyForm);
   const [tagsInput, setTagsInput] = useState("");
   const [skillsInput, setSkillsInput] = useState("");
@@ -45,10 +61,16 @@ export function JobsPage() {
       .map((skill) => skill.trim())
       .filter((skill) => skill !== "");
 
-    void dispatch(addJob({ ...form, tags: finalTags, requiredSkills: finalSkills }));
-    setForm(emptyForm);
-    setTagsInput("");
-    setSkillsInput("");
+    dispatch(addJob({ ...form, tags: finalTags, requiredSkills: finalSkills }))
+      .unwrap()
+      .then(() => {
+        setForm(emptyForm);
+        setTagsInput("");
+        setSkillsInput("");
+      })
+      .catch(() => {
+        // error is shown via addJobError from Redux state
+      });
   };
 
   return (
@@ -283,6 +305,12 @@ export function JobsPage() {
             >
               Publish Role
             </button>
+
+            {addJobError && (
+              <p style={{ color: "var(--danger)", marginTop: "10px", fontSize: "0.9rem" }}>
+                Failed to publish: {addJobError}
+              </p>
+            )}
           </form>
         </section>
 
@@ -293,6 +321,12 @@ export function JobsPage() {
               View Analytics
             </Link>
           </div>
+
+          {portalError && (
+            <p style={{ color: "var(--danger)", marginBottom: "12px", fontSize: "0.9rem" }}>
+              Failed to load jobs: {portalError}
+            </p>
+          )}
 
           <div className="table-wrapper">
             <table>

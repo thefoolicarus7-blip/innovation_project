@@ -65,7 +65,7 @@ export async function createJobForCompany(
   // Verification gate — only verified companies may publish job roles
   try {
     const companyUser = await User.findById(userId);
-    if (!companyUser || companyUser.isVerified !== true) {
+    if (!companyUser || (!companyUser.isVerified && !companyUser.isOTPverified)) {
       response.status(403).json({
         message:
           "Company verification required. Please upload valid business registration documents before publishing job roles.",

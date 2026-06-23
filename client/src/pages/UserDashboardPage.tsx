@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { applyToJobThunk, loadMyCv } from "../store/slices/userSlice";
+import { applyToJobThunk, loadMyCv, loadUserJobs, loadUserApplications } from "../store/slices/userSlice";
 import { calculateJobScore } from "../utils/jobMatch";
 import type { Job, Candidate } from "../types";
 
 export function UserDashboardPage() {
   const dispatch = useAppDispatch();
   const jobs = useAppSelector((state: any) => state.user.suggestedJobs);
+  const jobsLoading = useAppSelector((state: any) => state.user.jobsLoading);
+  const jobsError = useAppSelector((state: any) => state.user.error);
+  const applyError = useAppSelector((state: any) => state.user.applyError);
   const dailyStats = useAppSelector((state: any) => state.user.dailyStats);
   const applications = useAppSelector((state: any) => state.user.applications);
   const cv = useAppSelector((state: any) => state.user.cv) as Candidate | null;
@@ -20,11 +23,20 @@ export function UserDashboardPage() {
     }
   }, [cv, cvLoading, dispatch]);
 
-  const appliedJobIds = useMemo(() => {
-    return applications.map((app: any) => app.jobId);
+  useEffect(() => {
+    void dispatch(loadUserJobs());
+    void dispatch(loadUserApplications());
+  }, [dispatch]);
+
+  // Use compound key "ownerId-jobId" so applying to employer A's job #1 does NOT
+  // mark employer B's job #1 as applied (they share the same numeric id but are different jobs)
+  const appliedJobKeys = useMemo(() => {
+    return new Set<string>(
+      applications.map((app: any) => `${app.ownerId}-${app.jobId}`)
+    );
   }, [applications]);
 
-  const handleApply = (jobId: number) => {
+  const handleApply = (jobId: number, jobMongoId: string) => {
     if (dailyStats && dailyStats.appliedToday >= dailyStats.applyLimit) {
       alert(
         "You have reached your daily apply limit of " +
@@ -33,7 +45,7 @@ export function UserDashboardPage() {
       );
       return;
     }
-    void dispatch(applyToJobThunk(jobId));
+    void dispatch(applyToJobThunk({ jobId, jobMongoId }));
   };
 
   const progressPercent = dailyStats
@@ -82,6 +94,12 @@ export function UserDashboardPage() {
           <span className="pill">{jobs?.length || 0} Open Roles</span>
         </div>
 
+        {applyError && (
+          <p style={{ color: "var(--danger)", marginBottom: "12px" }}>
+            Apply failed: {applyError}
+          </p>
+        )}
+
         <div
           className="job-grid"
           style={{
@@ -91,7 +109,7 @@ export function UserDashboardPage() {
           }}
         >
           {jobs?.map((job: Job, index: number) => {
-            const hasApplied = appliedJobIds.includes(job.id);
+            const hasApplied = appliedJobKeys.has(`${job.ownerId}-${job.id}`);
             const isLimitReached =
               dailyStats && dailyStats.appliedToday >= dailyStats.applyLimit;
 
@@ -176,7 +194,7 @@ export function UserDashboardPage() {
                   <button
                     className="primary-btn"
                     style={{ width: "100%" }}
-                    onClick={() => handleApply(job.id)}
+                    onClick={() => handleApply(job.id, job._id)}
                     disabled={hasApplied || isLimitReached}
                   >
                     {hasApplied ? "Applied" : "Apply"}
@@ -186,7 +204,15 @@ export function UserDashboardPage() {
             );
           })}
 
-          {jobs?.length === 0 && (
+          {jobsLoading && (
+            <p style={{ color: "var(--muted)" }}>Loading jobs...</p>
+          )}
+
+          {!jobsLoading && jobsError && jobs?.length === 0 && !dailyStats && (
+            <p style={{ color: "var(--danger)" }}>Failed to load jobs. Please refresh the page.</p>
+          )}
+
+          {!jobsLoading && jobs?.length === 0 && (dailyStats || !jobsError) && (
             <p style={{ color: "var(--muted)" }}>No jobs found right now.</p>
           )}
         </div>
