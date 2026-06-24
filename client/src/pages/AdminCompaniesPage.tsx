@@ -90,8 +90,7 @@ export function AdminCompaniesPage() {
                       <button
                         className="primary-btn"
                         style={{ padding: "6px 12px", fontSize: "0.85rem" }}
-                        disabled={!hasAnyDoc}
-                        title={!hasAnyDoc ? "Company has not submitted any documents yet" : "Verify this company"}
+                        title="Verify this company"
                         onClick={() => handleVerify(item.id)}
                       >
                         Verify

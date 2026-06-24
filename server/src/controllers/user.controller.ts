@@ -643,7 +643,6 @@ export async function verifyEmail(request: Request, response: Response) {
       return;
     }
 
-    user.isVerified = true;
     user.isOTPverified = true;
     user.verificationCode = undefined;
     user.verificationCodeExpiry = undefined;

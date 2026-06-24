@@ -8,7 +8,7 @@ export async function getUnverifiedUsers(request: Request, response: Response) {
   try {
     const users = await User.find({
       role: "User",
-      isVerified: "false",
+      isVerified: false,
     }).select("-password");
 
     response.status(200).json({ items: users });
@@ -28,7 +28,7 @@ export async function getUnverifiedCompanies(
     // Find users with role "company" who are unverified
     const companyUsers = await User.find({
       role: "company",
-      isVerified: "false",
+      isVerified: false,
     }).select("-password");
 
     const userIds = companyUsers.map((u) => String(u._id));
@@ -87,6 +87,15 @@ export async function verifyUser(request: Request, response: Response) {
         console.log(
           `[Admin] Extracted ${skills.length} skills for user ${user._id}`,
         );
+      }
+    } else if (user.role === "company") {
+      const profile = await CompanyProfile.findOneAndUpdate(
+        { ownerId: String(user._id) },
+        { verificationStatus: "Verified", rejectionReason: "" },
+        { new: true }
+      );
+      if (profile) {
+        await sendVerificationApprovedEmail(user.email, profile.companyName);
       }
     }
 
@@ -161,6 +170,8 @@ export async function approveCompanyVerification(request: Request, response: Res
 
     const user = await User.findById(companyId);
     if (user) {
+      user.isVerified = true;
+      await user.save();
       await sendVerificationApprovedEmail(user.email, profile.companyName);
     }
 
