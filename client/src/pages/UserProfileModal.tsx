@@ -13,7 +13,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { logoutUser } from "../store/slices/authSlice";
-import { getMyCV, saveCV, uploadDocumentFile } from "../services/api";
+import { loadMyCv } from "../store/slices/userSlice";
+import { getMyCV, saveCV, uploadDocumentFile, updateUserDocuments } from "../services/api";
 import type { CvData, UploadedFile } from "../services/api";
 
 // ─── Tab types ────────────────────────────────────────────────────────────────
@@ -48,8 +49,7 @@ type StoredDoc = UploadedFile & { uploadedAt: string };
 
 type UserDocs = {
   certificates?: StoredDoc;
-  education?:    StoredDoc;
-  identity?:     StoredDoc;
+  resume?:       StoredDoc;
 };
 
 function docsKey(uid: string) { return `s2w_user_docs_${uid}`; }
@@ -70,16 +70,9 @@ const DOC_SLOTS = [
     hint:   "PDF or image, max 10 MB",
   },
   {
-    key:    "education" as const,
-    label:  "Educational Documents",
-    folder: "swipe2work/education",
-    accept: ".pdf,.jpg,.jpeg,.png,.webp",
-    hint:   "PDF or image, max 10 MB",
-  },
-  {
-    key:    "identity" as const,
-    label:  "Citizenship / Passport / National ID",
-    folder: "swipe2work/identity",
+    key:    "resume" as const,
+    label:  "CV / Resume",
+    folder: "swipe2work/resume",
     accept: ".pdf,.jpg,.jpeg,.png,.webp",
     hint:   "PDF or image, max 10 MB",
   },
@@ -118,12 +111,10 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
   const [docErrors,    setDocErrors]    = useState<Partial<Record<keyof UserDocs, string>>>({});
   // One hidden file input per slot
   const certRef = useRef<HTMLInputElement>(null);
-  const educRef = useRef<HTMLInputElement>(null);
-  const idRef   = useRef<HTMLInputElement>(null);
+  const resumeRef = useRef<HTMLInputElement>(null);
   const docRefs: Record<keyof UserDocs, React.RefObject<HTMLInputElement | null>> = {
     certificates: certRef,
-    education:    educRef,
-    identity:     idRef,
+    resume:       resumeRef,
   };
 
   // ── Load profile + docs on open ───────────────────────────────────────────
@@ -154,7 +145,13 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
       .finally(() => setLoadingPf(false));
 
     // Uploaded documents from localStorage
-    setDocs(loadDocs(user.id));
+    const localDocs = loadDocs(user.id);
+    setDocs(localDocs);
+
+    // Auto-sync legacy localStorage documents to the backend database
+    if (localDocs.resume?.secureUrl) {
+      updateUserDocuments({ cvUrl: localDocs.resume.secureUrl }).catch(console.error);
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
@@ -242,6 +239,13 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
       const updated: UserDocs = { ...docs, [slot.key]: doc };
       setDocs(updated);
       localStorage.setItem(docsKey(user.id), JSON.stringify(updated));
+
+      // Also save to database so admin can see it
+      if (slot.key === "resume") {
+        await updateUserDocuments({ cvUrl: result.secureUrl });
+        // Reload CV in Redux so the Job Match Score updates with newly extracted skills
+        void dispatch(loadMyCv());
+      }
     } catch (err) {
       setDocErrors((er) => ({
         ...er,
@@ -481,12 +485,14 @@ export function UserProfileModal({ onClose }: UserProfileModalProps) {
                 </div>
               </div>
 
-              {/* Resume — links to CV Builder (unchanged) */}
+              {/* Built CV — links to CV Builder */}
               <p className="profile-section-label">Document Uploads</p>
               <div className="profile-doc-row">
-                <span style={{ fontWeight: 500 }}>Resume / CV</span>
+                <span style={{ fontWeight: 500 }}>Generated CV / Profile</span>
                 <div className="profile-doc-actions">
-                  <span className="profile-status-badge pending">Not Generated</span>
+                  <span className={`profile-status-badge ${cvData ? "verified" : "pending"}`}>
+                    {cvData ? "Generated" : "Not Generated"}
+                  </span>
                   <button className="secondary-btn"
                     style={{ padding: "6px 14px", fontSize: "0.8rem", marginLeft: "auto" }}
                     onClick={() => goTo("/user/cv-builder")}>

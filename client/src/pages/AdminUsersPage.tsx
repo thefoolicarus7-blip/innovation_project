@@ -54,40 +54,6 @@ export function AdminUsersPage() {
                       <div style={{ fontWeight: 600 }}>
                         {user.firstName} {user.lastName}
                       </div>
-                      {user.skills && user.skills.length > 0 && (
-                        <div
-                          style={{
-                            marginTop: "6px",
-                            display: "flex",
-                            flexWrap: "wrap",
-                            gap: "4px",
-                          }}
-                        >
-                          {user.skills.slice(0, 3).map((skill: string) => (
-                            <span
-                              key={skill}
-                              style={{
-                                fontSize: "0.7rem",
-                                background: "var(--primary-muted)",
-                                color: "var(--primary)",
-                                padding: "2px 6px",
-                                borderRadius: "8px",
-                                border: "1px solid var(--primary)",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {skill}
-                            </span>
-                          ))}
-                          {user.skills.length > 3 && (
-                            <span
-                              style={{ fontSize: "0.7rem", color: "var(--muted)" }}
-                            >
-                              +{user.skills.length - 3}
-                            </span>
-                          )}
-                        </div>
-                      )}
                     </td>
                     <td>{user.email}</td>
                     <td>
@@ -128,9 +94,10 @@ export function AdminUsersPage() {
                                 padding: "4px 10px",
                                 fontSize: "0.78rem",
                                 display: "inline-flex",
+                                width: "fit-content"
                               }}
                             >
-                              CV Document
+                              View CV / Resume
                             </a>
                           )}
                         </div>

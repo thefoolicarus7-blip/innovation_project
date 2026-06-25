@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 import User from "../models/user.model.js";
 import Candidate from "../models/candidate.model.js";
-import { generateCvSummary } from "../services/ai.service.js";
+import { extractSkillsFromCV, generateCvSummary } from "../services/ai.service.js";
 import { sendPasswordResetEmail, sendVerificationEmail, verifyEmailExistence } from "../services/email.service.js";
 import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 
@@ -474,7 +474,41 @@ export async function updateUserDocuments(
       return;
     }
 
-    if (cvUrl) user.cvUrl = cvUrl;
+    if (cvUrl) {
+      user.cvUrl = cvUrl;
+        let extractedSkills: string[] = [];
+        try {
+          console.log(`[User] Extracting skills for user ${user._id} from newly uploaded CV: ${cvUrl}`);
+          extractedSkills = await extractSkillsFromCV(cvUrl);
+          if (extractedSkills.length > 0) {
+            // Merge with existing skills uniquely
+            user.skills = Array.from(new Set([...user.skills, ...extractedSkills]));
+            console.log(`[User] Extracted and merged ${extractedSkills.length} skills for user ${user._id}`);
+          }
+        } catch (aiError) {
+          console.error("[User] Failed to extract skills from CV during upload:", aiError);
+        }
+
+        // Always update or create the Candidate profile so the frontend Job Match score immediately sees the CV (even if empty skills)
+        const candidate = await Candidate.findOne({ id: String(user._id) });
+        if (candidate) {
+          candidate.skills = Array.from(new Set([...candidate.skills, ...extractedSkills]));
+          await candidate.save();
+        } else {
+          await Candidate.create({
+            id: String(user._id),
+            fullName: `${user.firstName} ${user.lastName}`,
+            email: user.email,
+            phone: "",
+            yearsOfExperience: 0,
+            workExperiences: [],
+            skills: extractedSkills,
+            education: "",
+            summary: ""
+          });
+        }
+    }
+    
     if (idUrl) user.idUrl = idUrl;
     if (profileImageUrl) user.profileImageUrl = profileImageUrl;
 

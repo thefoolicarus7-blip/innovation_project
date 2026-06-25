@@ -140,23 +140,32 @@ Resume Text:
 ${text.substring(0, 10000)}`;
 
     if (aiConfig.isGemini) {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiConfig.geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { maxOutputTokens: 100, temperature: 0.3 },
-          }),
+      let retryCount = 0;
+      const maxRetries = 2;
+      while (retryCount <= maxRetries) {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiConfig.geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }],
+              generationConfig: { maxOutputTokens: 100, temperature: 0.3 },
+            }),
+          }
+        );
+        if (!response.ok) {
+          if (response.status === 429 && retryCount < maxRetries) {
+            retryCount++;
+            await new Promise(resolve => setTimeout(resolve, 2000 * retryCount));
+            continue;
+          }
+          throw new Error(`Gemini API error: ${response.statusText}`);
         }
-      );
-      if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.statusText}`);
+        const data = await response.json();
+        const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+        return resultText.split(",").map((s: string) => s.trim()).filter((s: string) => s.length > 0).slice(0, 7);
       }
-      const data = await response.json();
-      const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-      return resultText.split(",").map((s: string) => s.trim()).filter((s: string) => s.length > 0).slice(0, 7);
     }
 
     const result = await client!.chat.completions.create({

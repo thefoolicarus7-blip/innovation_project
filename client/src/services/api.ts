@@ -421,3 +421,9 @@ export async function uploadDocumentFile(
   return payload.file;
 }
 
+export async function updateUserDocuments(data: { cvUrl?: string; idUrl?: string; profileImageUrl?: string }) {
+  return apiRequest<{ message: string; user: any }>("/user/documents", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}

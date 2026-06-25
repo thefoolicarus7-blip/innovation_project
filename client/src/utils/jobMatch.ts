@@ -21,7 +21,8 @@ export function calculateJobScore(user: Candidate | null, job: Job): JobMatchRes
 
   // 1. Skills Match (70%)
   const userSkills = (user.skills || []).map((s) => s.toLowerCase().trim());
-  const reqSkills = (job.requiredSkills || []).map((s) => s.toLowerCase().trim());
+  const combinedReqSkills = Array.from(new Set([...(job.requiredSkills || []), ...(job.tags || [])]));
+  const reqSkills = combinedReqSkills.map((s) => s.toLowerCase().trim());
   
   let matchedSkills: string[] = [];
   let missingSkills: string[] = [];
@@ -30,8 +31,8 @@ export function calculateJobScore(user: Candidate | null, job: Job): JobMatchRes
   if (reqSkills.length === 0) {
     skillsScore = 70; // if no skills required, full marks for skills
   } else {
-    for (let i = 0; i < job.requiredSkills?.length; i++) {
-      const originalSkill = job.requiredSkills[i];
+    for (let i = 0; i < combinedReqSkills.length; i++) {
+      const originalSkill = combinedReqSkills[i];
       const normalizedSkill = reqSkills[i];
       if (userSkills.includes(normalizedSkill)) {
         matchedSkills.push(originalSkill);
