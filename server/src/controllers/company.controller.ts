@@ -205,7 +205,20 @@ export async function listCandidatesForCompany(
     const applications = await CompanyApplication.find({ ownerId: userId });
     const candidateIds = [...new Set(applications.map(app => app.candidateId))];
 
-    const items = await Candidate.find({ id: { $in: candidateIds } });
+    const candidates = await Candidate.find({ id: { $in: candidateIds } });
+
+    const users = await User.find({ _id: { $in: candidateIds } });
+    const userMap = new Map(users.map(u => [u._id.toString(), u.cvUrl]));
+
+    const items = candidates.map(candidate => {
+      const candidateData = candidate.toJSON();
+      const cvUrl = userMap.get(candidate.id);
+      if (cvUrl) {
+        candidateData.cvUrl = cvUrl;
+      }
+      return candidateData;
+    });
+
     response.status(200).json({ items });
   } catch (error) {
     response.status(500).json({ message: "Unable to list candidates" });
@@ -224,7 +237,13 @@ export async function getCandidateForCompany(
       response.status(404).json({ message: "Candidate not found" });
       return;
     }
-    response.status(200).json({ item: candidate });
+    const user = await User.findById(candidateId);
+    const candidateData = candidate.toJSON();
+    if (user && user.cvUrl) {
+      candidateData.cvUrl = user.cvUrl;
+    }
+
+    response.status(200).json({ item: candidateData });
   } catch (error) {
     response.status(500).json({ message: "Unable to fetch candidate" });
   }

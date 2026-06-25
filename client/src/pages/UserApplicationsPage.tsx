@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { loadUserApplications } from "../store/slices/userSlice";
 
@@ -9,6 +9,7 @@ export function UserApplicationsPage() {
   const applications = useAppSelector((state: any) => state.user.applications);
   const loading = useAppSelector((state: any) => state.user.applicationsLoading);
   const [activeTab, setActiveTab] = useState<TabOption>("all");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     void dispatch(loadUserApplications(activeTab));
@@ -112,28 +113,63 @@ export function UserApplicationsPage() {
                     statusClass += "success";
 
                   return (
-                    <tr key={app.id}>
-                      <td style={{ fontWeight: 600 }}>{app.jobTitle}</td>
-                      <td style={{ color: "var(--muted)" }}>
-                        {new Date(app.appliedAt).toLocaleDateString()}
-                      </td>
-                      <td>
-                        <span
-                          className={statusClass}
-                          style={{
-                            color:
-                              app.status === "Rejected"
-                                ? "var(--danger)"
-                                : app.status === "Interview" ||
-                                    app.status === "Shortlisted"
-                                  ? "var(--success)"
-                                  : "inherit",
-                          }}
-                        >
-                          {app.status}
-                        </span>
-                      </td>
-                    </tr>
+                    <Fragment key={app.id}>
+                      <tr 
+                        onClick={() => setExpandedId(expandedId === app.id ? null : app.id)}
+                        style={{ cursor: "pointer", background: expandedId === app.id ? "var(--muted-bg)" : "transparent" }}
+                        title="Click to view more details"
+                      >
+                        <td style={{ fontWeight: 600 }}>{app.jobTitle}</td>
+                        <td style={{ color: "var(--muted)" }}>
+                          {new Date(app.appliedAt).toLocaleDateString()}
+                        </td>
+                        <td>
+                          <span
+                            className={statusClass}
+                            style={{
+                              color:
+                                app.status === "Rejected"
+                                  ? "var(--danger)"
+                                  : app.status === "Interview" ||
+                                      app.status === "Shortlisted"
+                                    ? "var(--success)"
+                                    : "inherit",
+                            }}
+                          >
+                            {app.status}
+                          </span>
+                        </td>
+                      </tr>
+                      {expandedId === app.id && app.jobDetails && app.companyDetails && (
+                        <tr style={{ background: "var(--muted-bg)" }}>
+                          <td colSpan={3} style={{ padding: "20px", borderTop: "none" }}>
+                            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
+                              <div style={{ background: "var(--card)", padding: "16px", borderRadius: "var(--radius-md)" }}>
+                                <h4 style={{ margin: "0 0 12px 0", color: "var(--primary)" }}>Job Details</h4>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Location:</strong> {app.jobDetails.location}</p>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Type:</strong> {app.jobDetails.employmentType}</p>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Salary:</strong> {app.jobDetails.salaryRange}</p>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Experience:</strong> {app.jobDetails.experienceLevel}</p>
+                                {app.jobDetails.requiredSkills && app.jobDetails.requiredSkills.length > 0 && (
+                                  <div style={{ marginTop: "12px", display: "flex", gap: "4px", flexWrap: "wrap" }}>
+                                    {app.jobDetails.requiredSkills.map((s: string) => <span key={s} className="tag-pill" style={{fontSize: "0.75rem", padding: "2px 8px"}}>{s}</span>)}
+                                  </div>
+                                )}
+                              </div>
+                              <div style={{ background: "var(--card)", padding: "16px", borderRadius: "var(--radius-md)" }}>
+                                <h4 style={{ margin: "0 0 12px 0", color: "var(--primary)" }}>Company Profile</h4>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Name:</strong> {app.companyDetails.companyName}</p>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Industry:</strong> {app.companyDetails.industry}</p>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem" }}><strong style={{ color: "var(--muted)" }}>Location:</strong> {app.companyDetails.city}, {app.companyDetails.country}</p>
+                                <p style={{ margin: "6px 0", fontSize: "0.9rem", display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }} title={app.companyDetails.about}>
+                                  <strong style={{ color: "var(--muted)" }}>About:</strong> {app.companyDetails.about}
+                                </p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </Fragment>
                   );
                 })}
                 {applications.length === 0 && (

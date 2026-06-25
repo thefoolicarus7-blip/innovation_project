@@ -26,37 +26,7 @@ export function CandidateProfilePage() {
     <div className="page-stack">
       <section className="panel">
         <div className="section-head">
-          <h2>{candidate.fullName}</h2>
-          <span className="pill">{candidate.yearsOfExperience} yr{candidate.yearsOfExperience !== 1 ? "s" : ""} experience</span>
-        </div>
-        <p className="section-subtitle">{candidate.summary}</p>
-
-        <div className="profile-grid">
-          <div>
-            <h4>Email</h4>
-            <p>{candidate.email}</p>
-          </div>
-          <div>
-            <h4>Phone</h4>
-            <p>{candidate.phone}</p>
-          </div>
-          <div>
-            <h4>Experience</h4>
-            <p>{candidate.yearsOfExperience} years</p>
-          </div>
-          <div>
-            <h4>Education</h4>
-            <p>{candidate.education}</p>
-          </div>
-        </div>
-
-        <div className="section-head" style={{ marginTop: "16px" }}>
-          <h3>Skills</h3>
-        </div>
-        <div className="chip-list">
-          {candidate.skills.map((skill) => (
-            <span className="chip" key={skill}>{skill}</span>
-          ))}
+          <h2>Candidate Documents</h2>
         </div>
 
         {candidate.resumeUrl && (
@@ -65,9 +35,20 @@ export function CandidateProfilePage() {
             target="_blank"
             rel="noreferrer"
             className="primary-btn inline-btn"
-            style={{ marginTop: "16px", display: "inline-block" }}
+            style={{ marginTop: "16px", display: "inline-block", marginRight: "8px" }}
           >
             View Uploaded Resume
+          </a>
+        )}
+        {candidate.cvUrl && (
+          <a
+            href={candidate.cvUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="secondary-btn inline-btn"
+            style={{ marginTop: "16px", display: "inline-block" }}
+          >
+            View Original CV
           </a>
         )}
       </section>

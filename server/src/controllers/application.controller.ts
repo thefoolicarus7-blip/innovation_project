@@ -1,5 +1,7 @@
 import type { Response } from "express";
 import CompanyApplication from "../models/company-application.model.js";
+import CompanyJob from "../models/company-job.model.js";
+import CompanyProfileModel from "../models/company-profile.model.js";
 import type { AuthenticatedRequest } from "../middlewares/auth.middleware.js";
 
 type ApplicationTab = "matches" | "let_it_go";
@@ -35,16 +37,28 @@ export async function listMyApplications(
     }
 
     if (tab === "matches") {
-      query.status = { $in: ["New", "Shortlisted", "Interview"] };
+      query.status = { $in: ["Shortlisted", "Interview"] };
     } else if (tab === "let_it_go") {
       query.status = "Rejected";
     }
 
     const items = await CompanyApplication.find(query).sort({ appliedAt: -1 });
 
+    const enrichedItems = await Promise.all(
+      items.map(async (app) => {
+        const jobDetails = await CompanyJob.findOne({ id: app.jobId });
+        const companyDetails = await CompanyProfileModel.findOne({ ownerId: app.ownerId });
+        return {
+          ...app.toJSON(),
+          jobDetails,
+          companyDetails,
+        };
+      })
+    );
+
     response.status(200).json({
-      items,
-      total: items.length,
+      items: enrichedItems,
+      total: enrichedItems.length,
       tab: tab ?? "all",
     });
   } catch (error) {

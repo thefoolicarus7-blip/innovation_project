@@ -50,6 +50,7 @@ export type Candidate = {
   education: string;
   summary: string;
   resumeUrl?: string;
+  cvUrl?: string;
 };
 
 export type JobApplication = {
@@ -106,4 +107,6 @@ export type UserApplication = {
   jobTitle: string;
   appliedAt: string;
   status: "New" | "Shortlisted" | "Interview" | "Rejected";
+  jobDetails?: Job;
+  companyDetails?: CompanyProfile;
 };
