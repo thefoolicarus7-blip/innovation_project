@@ -50,8 +50,8 @@ export function CVBuilderPage() {
   useEffect(() => {
     if (cv) {
       setForm({
-        fullName: cv.fullName ?? user?.name ?? "",
-        email: cv.email ?? user?.email ?? "",
+        fullName: cv.fullName ?? "",
+        email: cv.email ?? "",
         phone: cv.phone ?? "",
         dateOfBirth: cv.dateOfBirth ?? "",
         gender: cv.gender ?? "",
@@ -65,10 +65,8 @@ export function CVBuilderPage() {
         setWorkExperiences(cv.workExperiences.map((e: WorkExperience) => ({ ...e, endDate: e.endDate ?? "" })));
         setExpErrors(cv.workExperiences.map(() => ({})));
       }
-    } else if (user) {
-      setForm((prev) => ({ ...prev, fullName: user.name ?? "", email: user.email ?? "" }));
     }
-  }, [cv, user]);
+  }, [cv]);
 
   function set(key: keyof typeof form, value: string | number) {
     setSaved(false);
@@ -180,6 +178,7 @@ export function CVBuilderPage() {
         yearsOfExperience: Number(form.yearsOfExperience),
         education: form.education,
         skills,
+        workExperiences,
       });
       set("summary", summary);
     } catch (err) {

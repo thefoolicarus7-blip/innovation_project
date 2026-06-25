@@ -372,6 +372,7 @@ export async function generateCVSummary(data: {
   yearsOfExperience: number;
   education: string;
   skills: string[];
+  workExperiences?: Array<{ jobTitle: string; company: string; description?: string }>;
 }): Promise<string> {
   const payload = await apiRequest<{ summary: string }>("/user/cv/generate-summary", {
     method: "POST",

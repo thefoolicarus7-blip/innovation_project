@@ -577,11 +577,12 @@ export async function generateSummaryForCV(
     return;
   }
 
-  const { fullName, yearsOfExperience, education, skills } = request.body as {
+  const { fullName, yearsOfExperience, education, skills, workExperiences } = request.body as {
     fullName?: string;
     yearsOfExperience?: number;
     education?: string;
     skills?: string[];
+    workExperiences?: Array<{ jobTitle: string; company: string; description?: string }>;
   };
 
   if (!fullName || yearsOfExperience === undefined || !education || !skills?.length) {
@@ -597,6 +598,7 @@ export async function generateSummaryForCV(
       yearsOfExperience: Number(yearsOfExperience),
       education,
       skills,
+      workExperiences,
     });
     response.status(200).json({ summary });
   } catch (error) {

@@ -6,49 +6,90 @@ type SummaryInput = {
   yearsOfExperience: number;
   education: string;
   skills: string[];
+  workExperiences?: { jobTitle: string; company: string; description?: string }[];
 };
 
-function getNvidiaClient(): OpenAI {
-  const apiKey = process.env.NVIDIA_API_KEY || "";
-  if (!apiKey) {
-    throw new Error("NVIDIA_API_KEY is not configured on the server.");
+function getAiClient(): { client: OpenAI | null; isGemini: boolean; geminiKey?: string } {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  const nvidiaKey = process.env.NVIDIA_API_KEY;
+
+  if (geminiKey) {
+    return {
+      client: null,
+      isGemini: true,
+      geminiKey,
+    };
   }
-  return new OpenAI({
-    apiKey,
-    baseURL: "https://integrate.api.nvidia.com/v1",
-  });
+
+  if (nvidiaKey) {
+    return {
+      client: new OpenAI({
+        apiKey: nvidiaKey,
+        baseURL: "https://integrate.api.nvidia.com/v1",
+      }),
+      isGemini: false,
+    };
+  }
+
+  throw new Error("Neither GEMINI_API_KEY nor NVIDIA_API_KEY is configured on the server.");
 }
 
 export async function generateCvSummary(input: SummaryInput): Promise<string> {
-  const client = getNvidiaClient();
+  const { client, isGemini, geminiKey } = getAiClient();
 
-  const prompt = `Write a professional CV summary paragraph for a job seeker with the following details:
+  const experiences = input.workExperiences?.map(e => `- ${e.jobTitle} at ${e.company}: ${e.description || ""}`).join("\n") || "None provided";
+
+  const prompt = `Write a comprehensive and highly professional CV summary or "Professional Profile" for a job seeker with the following details:
 - Name: ${input.fullName}
 - Years of experience: ${input.yearsOfExperience}
 - Education: ${input.education}
 - Skills: ${input.skills.join(", ")}
+- Work Experience:
+${experiences}
 
 Rules:
-- Write exactly 2-3 sentences.
-- Write in first person (e.g. "I am..." or "Results-driven professional...").
-- Sound professional, confident, and specific to their skills.
+- Write 1 to 2 well-crafted paragraphs.
+- Highlight their key skills and summarize their work experience accomplishments.
+- Write in first person (e.g., "I am a..." or "As a...").
+- Sound professional, confident, and specific to their background.
 - Do NOT use bullet points, markdown, asterisks, or headers.
 - Return ONLY the summary paragraph text, nothing else.`;
 
-  const response = await client.chat.completions.create({
+  if (isGemini) {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { maxOutputTokens: 500, temperature: 0.7 },
+        }),
+      }
+    );
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? "";
+  }
+
+  const response = await client!.chat.completions.create({
     model: "meta/llama-3.1-70b-instruct",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.7,
-    max_tokens: 200,
+    max_tokens: 500,
   });
 
   return response.choices[0]?.message?.content?.trim() ?? "";
 }
 
 export async function extractSkillsFromCV(cvUrl: string): Promise<string[]> {
-  const apiKey = process.env.NVIDIA_API_KEY || "";
-  if (!apiKey) {
-    console.warn("NVIDIA_API_KEY not found, skipping skill extraction.");
+  let aiConfig: { client: OpenAI | null; isGemini: boolean; geminiKey?: string };
+  try {
+    aiConfig = getAiClient();
+  } catch (error) {
+    console.warn("No AI API key found, skipping skill extraction.");
     return [];
   }
 
@@ -64,10 +105,7 @@ export async function extractSkillsFromCV(cvUrl: string): Promise<string[]> {
   }
 
   const { PDFParse } = await import("pdf-parse");
-  const client = new OpenAI({
-    apiKey,
-    baseURL: "https://integrate.api.nvidia.com/v1",
-  });
+  const client = aiConfig.client;
 
   try {
     const response = await axios.get(cvUrl, { responseType: "arraybuffer" });
@@ -101,7 +139,27 @@ Example output: React.js, Next.js, TypeScript, Node.js, AWS, Agile, Project Mana
 Resume Text:
 ${text.substring(0, 10000)}`;
 
-    const result = await client.chat.completions.create({
+    if (aiConfig.isGemini) {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${aiConfig.geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 100, temperature: 0.3 },
+          }),
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`Gemini API error: ${response.statusText}`);
+      }
+      const data = await response.json();
+      const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      return resultText.split(",").map((s: string) => s.trim()).filter((s: string) => s.length > 0).slice(0, 7);
+    }
+
+    const result = await client!.chat.completions.create({
       model: "meta/llama-3.1-70b-instruct",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.3,
